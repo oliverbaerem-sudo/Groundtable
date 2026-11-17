@@ -1,0 +1,334 @@
+"use strict";
+
+const MONTHS = ["januar","februar","mars","april","mai","juni","juli","august","september","oktober","november","desember"];
+const MON_S = ["jan","feb","mar","apr","mai","jun","jul","aug","sep","okt","nov","des"];
+const STATUSES = ["Planlagt", "Påmeldt", "Gjennomført"];
+const $app = document.getElementById("app");
+
+const iso2 = (y, m, d) => { const t = new Date(y, m - 1, d); return iso(t.getFullYear(), t.getMonth() + 1, t.getDate()); };
+const pad = (n) => String(n).padStart(2, "0");
+const iso = (y, m, d) => `${y}-${pad(m)}-${pad(d)}`;
+const parse = (s) => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const todayIso = () => { const t = new Date(); return iso(t.getFullYear(), t.getMonth() + 1, t.getDate()); };
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const safeUrl = (u) => { try { const x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href : ""; } catch { return ""; } };
+const okEmail = (s) => /^[^\s@<>"']+@[^\s@<>"']+\.[a-z]{2,}$/i.test(s);
+const okPhone = (s) => /^[+0-9 ()-]{5,20}$/.test(s);
+function contactFor(e) {
+  const c = Object.assign({}, e.contact || {}, store.contacts[e.key] || {});
+  return (c.name || c.org || c.email || c.phone) ? c : null;
+}
+function contactHtml(e) {
+  const c = contactFor(e);
+  const parts = [];
+  if (c) {
+    if (c.name || c.org) parts.push(`<b>${esc(c.name || c.org)}</b>${c.role ? ` (${esc(c.role)})` : ""}${c.name && c.org ? `, ${esc(c.org)}` : ""}`);
+    if (c.email && okEmail(c.email)) parts.push(`<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`);
+    if (c.phone && okPhone(c.phone)) parts.push(`<a href="tel:${esc(c.phone.replace(/[^+0-9]/g, ""))}">${esc(c.phone)}</a>`);
+  }
+  const mine = store.contacts[e.key] || {};
+  const f = (k, label, ph) => `<label class="field"><span class="lbl">${label}</span><input type="text" data-f="${k}" value="${esc(mine[k] || "")}" placeholder="${ph}" maxlength="80"></label>`;
+  return (parts.length ? `<p class="contact"><span class="lbl">Kontakt</span> ${parts.join(" · ")}</p>` : `<p class="contact none">Ingen kontaktinfo funnet ennå.</p>`) +
+    `<details class="cedit"><summary>${c ? "Endre kontakt" : "Legg til kontaktperson"}</summary><div class="row">${f("name", "Navn", "Kontaktperson")}${f("email", "E-post", "navn@eksempel.no")}${f("phone", "Telefon", "900 00 000")}<button type="button" class="btn sm" data-act="savecontact" data-key="${esc(e.key)}">Lagre</button></div></details>`;
+}
+const isBoard = (ev) => !!ev.board || BOARD_SPORTS.includes(ev.sport);
+const isMain = (ev) => isBoard(ev) || !!(REGIONS[ev.region] && REGIONS[ev.region].main);
+
+/* ---------- Lagring (kun denne nettleseren) ---------- */
+let store = { custom: [], joined: {}, contacts: {}, showMinor: true };
+try { store = Object.assign(store, JSON.parse(localStorage.getItem("vl-store") || "{}")); } catch (e) {}
+const save = () => { try { localStorage.setItem("vl-store", JSON.stringify(store)); } catch (e) {} };
+
+/* ---------- Arrangementer ---------- */
+function seedEvent(base, y) {
+  const s = base.on && base.on[y] ? Object.assign({}, base, base.on[y]) : base;
+  return { key: `${s.id}@${y}`, id: s.id, name: s.name, date: iso(y, s.m, s.d), end: s.end ? iso2(y, s.m, s.end) : "",
+    place: s.place, region: s.region, sport: s.sport, contact: s.contact || null, big: !!s.big, board: !!s.board, student: !!s.student, official: s.official || "", url: s.url || "", info: s.info || "", approx: true, fromSearch: !!s.year, custom: false };
+}
+function customEvent(c) { return { key: c.id, id: c.id, name: c.name, date: c.date, end: c.end || "", place: c.place, region: c.region,
+  sport: c.sport, link: c.link, notes: c.notes, approx: false, custom: true, status: c.status }; }
+
+function eventsForYear(y) {
+  const seeds = SEED.filter((s) => !s.year || s.year === y).map((s) => seedEvent(s, y));
+  const custom = store.custom.map(customEvent).filter((e) => e.date.startsWith(y + "-"));
+  return [...seeds, ...custom].map(withStatus).sort(byDate);
+}
+function withStatus(e) { if (!e.custom) e.status = store.joined[e.key] || ""; return e; }
+const byDate = (a, b) => a.date.localeCompare(b.date) || a.name.localeCompare(b.name, "nb");
+const isMine = (e) => e.custom || !!store.joined[e.key];
+const endOf = (e) => e.end || e.date;
+
+function upcoming(withPast) {
+  const t = todayIso(), y = new Date().getFullYear();
+  return [...eventsForYear(y), ...eventsForYear(y + 1)].filter((e) => withPast ? e.date >= y + "-01-01" : endOf(e) >= t).sort(byDate);
+}
+const isPast = (e) => endOf(e) < todayIso();
+function myEvents() {
+  const out = store.custom.map(customEvent);
+  for (const key of Object.keys(store.joined)) {
+    const [id, y] = key.split("@"); const s = SEED.find((x) => x.id === id);
+    if (s) out.push(withStatus(seedEvent(s, Number(y))));
+  }
+  return out.sort(byDate);
+}
+
+/* ---------- Visning av kort ---------- */
+function fmtDate(e) {
+  const d = parse(e.date);
+  return `<div class="date"><b>${d.getDate()}</b><span>${MON_S[d.getMonth()]}</span>${e.end ? `<i>til ${parse(e.end).getDate()}. ${MON_S[parse(e.end).getMonth()]}</i>` : ""}</div>`;
+}
+function card(e, ctx) {
+  const main = isMain(e), r = REGIONS[e.region];
+  const q = encodeURIComponent(e.name + " " + e.date.slice(0, 4) + " offisiell nettside");
+  const link = e.custom ? safeUrl(e.link) : e.url;
+  const search = `https://www.google.com/search?q=${q}`;
+  const check = e.approx && !e.url ? search : "";
+  const mine = isMine(e);
+  let actions = "";
+  if (!e.custom) actions += `<button class="btn sm ${mine ? "ghost" : "accent"}" data-act="toggle" data-key="${esc(e.key)}">${mine ? "Fjern fra mine" : "Jeg stiller på"}</button>`;
+  if (link) actions += `<a class="btn sm" href="${esc(link)}" target="_blank" rel="noopener">Gå til nettside ↗</a>`;
+  else if (e.info) actions += `<a class="btn sm" href="${esc(e.info)}" target="_blank" rel="noopener">Mer info ↗</a>`;
+  else actions += `<a class="btn sm ghost" href="${esc(search)}" target="_blank" rel="noopener">Finn nettside ↗</a>`;
+  if (e.approx && !e.official && (e.info || !e.url)) actions += `<a class="btn sm ghost" href="${esc(search)}" target="_blank" rel="noopener">Sjekk dato</a>`;
+  if (ctx === "mine") {
+    actions += `<select class="status" aria-label="Status for ${esc(e.name)}" data-act="status" data-key="${esc(e.key)}" style="width:auto;min-height:34px;padding:4px 8px">${STATUSES.map((s) => `<option${(e.status || "Planlagt") === s ? " selected" : ""}>${s}</option>`).join("")}</select>`;
+    if (e.custom) actions += `<button class="btn sm danger" data-act="del" data-key="${esc(e.key)}">Slett</button>`;
+  }
+  const past = isPast(e);
+  return `<li class="card${main ? "" : " minor"}${isBoard(e) ? " board" : ""}${past ? " past" : ""}">${fmtDate(e)}<div style="min-width:0">
+    <h3>${esc(e.name)}</h3>
+    <p class="meta">${esc(e.place || "Sted ikke oppgitt")} · ${esc(r ? r.label : "")} · ${esc(e.sport)}</p>
+    ${e.notes ? `<p class="meta">${esc(e.notes)}</p>` : ""}
+    ${contactHtml(e)}
+    <div class="tags">
+      ${isBoard(e) ? `<span class="tag board">Brettsport</span>` : ""}
+      ${e.student ? `<span class="tag ok">Student</span>` : ""}
+      ${main ? "" : `<span class="tag minor">Mindre viktig</span>`}
+      ${past ? `<span class="tag">Avholdt</span>` : ""}
+      ${e.custom || e.big ? "" : `<span class="tag">Mindre arrangement</span>`}
+      ${e.official ? `<span class="tag ok">Dato fra ${esc(typeof e.official === "string" ? e.official : "Brettforbundet")}</span>` : ""}
+      ${e.approx && !e.official ? `<span class="tag warn">${e.fromSearch ? "Dato fra nettsøk" : "Dato omtrentlig"}</span>` : ""}
+      ${e.custom ? `<span class="tag mine">Lagt til av meg</span>` : mine ? `<span class="tag mine">Jeg stiller på</span>` : ""}
+      ${ctx === "mine" && e.status ? `<span class="tag ${e.status === "Gjennomført" ? "ok" : ""}">${esc(e.status)}</span>` : ""}
+    </div>
+    ${actions ? `<div class="actions">${actions}</div>` : ""}</div></li>`;
+}
+const listHtml = (evs, ctx, emptyMsg) => evs.length ? `<ul class="list">${evs.map((e) => card(e, ctx)).join("")}</ul>` : `<div class="empty">${emptyMsg}</div>`;
+const minorSwitch = () => `<label class="switch"><input type="checkbox" id="showMinor"${store.showMinor ? " checked" : ""}> Vis også andre steder i Norge (mindre viktig)</label>`;
+const visible = (evs) => store.showMinor ? evs : evs.filter(isMain);
+
+const sportOptions = (sel) => Object.entries(SPORT_GROUPS).map(([g, list]) => `<optgroup label="${esc(g)}">${list.map((s) => `<option${s === sel ? " selected" : ""}>${esc(s)}</option>`).join("")}</optgroup>`).join("");
+/* ---------- Side: Søk ---------- */
+const F = { q: "", sport: "", region: "", month: "", size: "", past: false, board: false, student: false };
+function viewSok() {
+  const all = upcoming(false);
+  const nextBoard = all.find(isBoard), next = nextBoard || all.find(isMain);
+  let hero = "";
+  if (next) {
+    const days = Math.max(0, Math.round((parse(next.date) - parse(todayIso())) / 86400000));
+    hero = `<section class="next" aria-label="Neste arrangement"><div class="big">${days}<small>${days === 1 ? "dag" : "dager"}</small></div>
+      <div><h2>${esc(next.name)}</h2><p>${esc(next.place)} · ${parse(next.date).getDate()}. ${MONTHS[parse(next.date).getMonth()]} ${parse(next.date).getFullYear()} · ${nextBoard ? "neste brettarrangement" : "neste hovedarrangement"}</p></div></section>`;
+  }
+  const regionOpts = Object.entries(REGIONS).map(([k, r]) => `<option value="${k}"${F.region === k ? " selected" : ""}>${esc(r.label)}${r.main ? "" : " (mindre viktig)"}</option>`).join("");
+  const monthOpts = MONTHS.map((m, i) => `<option value="${i + 1}"${F.month == i + 1 ? " selected" : ""}>${m}</option>`).join("");
+  $app.innerHTML = `<div class="stack">
+    <div><h1>Finn sportsarrangementer</h1><p class="lead">Brettsport først: surf, skate og snowboard. Store og små arrangementer for deltakere fra 18 år, fra Trondheim langs kysten ned til Kristiansand. Resten av landet vises dempet.</p></div>
+    ${hero}
+    <section class="filters" aria-label="Filtre">
+      <div class="row">
+        <div class="field" style="flex:2 1 240px"><label for="q">Søk</label><input type="search" id="q" placeholder="Navn eller sted, f.eks. Bergen" value="${esc(F.q)}"></div>
+        <div class="field"><label for="fRegion">Område</label><select id="fRegion"><option value="">Alle</option>${regionOpts}</select></div>
+        <div class="field"><label for="fSportSel">Idrett</label><select id="fSportSel"><option value="">Alle idretter</option>${sportOptions(F.sport)}</select></div>
+        <div class="field"><label for="fSize">Størrelse</label><select id="fSize"><option value="">Alle</option><option value="stor"${F.size === "stor" ? " selected" : ""}>Store arrangementer</option><option value="liten"${F.size === "liten" ? " selected" : ""}>Mindre arrangementer</option></select></div>
+        <div class="field"><label for="fMonth">Måned</label><select id="fMonth"><option value="">Alle</option>${monthOpts}</select></div>
+      </div>
+      <div class="row"><label class="switch"><input type="checkbox" id="onlyBoard"${F.board ? " checked" : ""}> Bare brettsport (surf, skate, snowboard)</label><label class="switch"><input type="checkbox" id="onlyStudent"${F.student ? " checked" : ""}> Bare studentarrangementer</label>${minorSwitch()}<label class="switch"><input type="checkbox" id="showPast"${F.past ? " checked" : ""}> Vis også tidligere i år</label></div>
+    </section>
+    <section id="results" aria-live="polite"></section></div>`;
+  updateResults();
+}
+function updateResults() {
+  const q = F.q.trim().toLowerCase();
+  const evs = visible(upcoming(F.past)).filter((e) =>
+    (!q || (e.name + " " + e.place).toLowerCase().includes(q)) && (!F.sport || e.sport === F.sport) && (!F.board || isBoard(e)) && (!F.student || e.student) &&
+    (!F.region || e.region === F.region) && (!F.size || (F.size === "stor") === !!(e.big)) && (!F.month || parse(e.date).getMonth() + 1 === Number(F.month)));
+  const n = evs.length;
+  document.getElementById("results").innerHTML = `<h2 style="margin-bottom:10px">${n} ${n === 1 ? "arrangement" : "arrangementer"}${F.past ? " i år og fremover" : " fremover"}</h2>` +
+    listHtml(evs, "sok", "Ingen treff. Prøv å fjerne et filter, eller legg til arrangementet selv under «Mine».");
+}
+
+/* ---------- Side: Denne måneden (kalender) ---------- */
+const now0 = new Date();
+const CAL = { y: now0.getFullYear(), m: now0.getMonth(), sel: "" };
+function viewKalender() {
+  const evs = visible(eventsForYear(CAL.y));
+  const first = new Date(CAL.y, CAL.m, 1), startOffset = (first.getDay() + 6) % 7;
+  const daysIn = new Date(CAL.y, CAL.m + 1, 0).getDate();
+  const cells = [];
+  for (let i = 0; i < Math.ceil((startOffset + daysIn) / 7) * 7; i++) {
+    const d = new Date(CAL.y, CAL.m, 1 - startOffset + i);
+    cells.push(iso(d.getFullYear(), d.getMonth() + 1, d.getDate()));
+  }
+  const allYears = [...new Set(cells.map((c) => c.slice(0, 4)))].filter((y) => Number(y) !== CAL.y);
+  let pool = evs; allYears.forEach((y) => { pool = pool.concat(visible(eventsForYear(Number(y)))); });
+  const onDay = (c) => pool.filter((e) => e.date <= c && c <= endOf(e));
+  const t = todayIso();
+  const grid = cells.map((c) => {
+    const d = parse(c), de = onDay(c), out = d.getMonth() !== CAL.m;
+    const pills = de.slice(0, 3).map((e) => `<span class="pill${isMine(e) ? " mine" : isMain(e) ? "" : " minor"}" title="${esc(e.name)}">${esc(e.name)}</span>`).join("") + (de.length > 3 ? `<span class="pill minor">+${de.length - 3}</span>` : "");
+    return `<button type="button" class="day${out ? " out" : ""}${c === t ? " today" : ""}${c === CAL.sel ? " sel" : ""}" data-day="${c}" aria-label="${d.getDate()}. ${MONTHS[d.getMonth()]}, ${de.length} arrangementer"><span class="n">${d.getDate()}</span><span class="dots">${pills}</span></button>`;
+  }).join("");
+  const monthStart = iso(CAL.y, CAL.m + 1, 1), monthEnd = iso(CAL.y, CAL.m + 1, daysIn);
+  let list = pool.filter((e) => e.date <= monthEnd && endOf(e) >= monthStart);
+  list = [...new Map(list.map((e) => [e.key, e])).values()].sort(byDate);
+  const selList = CAL.sel ? onDay(CAL.sel) : null;
+  const isCurrent = CAL.y === now0.getFullYear() && CAL.m === now0.getMonth();
+  $app.innerHTML = `<div class="stack">
+    <div><h1>${isCurrent ? "Denne måneden" : "Kalender"}</h1></div>
+    <div class="cal-head"><button class="btn ghost" data-cal="-1" aria-label="Forrige måned">←</button>
+      <h2>${MONTHS[CAL.m]} ${CAL.y}</h2><button class="btn ghost" data-cal="1" aria-label="Neste måned">→</button></div>
+    <div class="row" style="justify-content:space-between">${minorSwitch()}${isCurrent ? "" : `<button class="btn sm ghost" data-cal="0">Til inneværende måned</button>`}</div>
+    <div class="legend"><span>Hovedområde</span><span class="l-minor">Mindre viktig</span><span class="l-mine">Mine</span></div>
+    <div class="cal"><div class="cal-grid">${["man","tir","ons","tor","fre","lør","søn"].map((d) => `<div class="dow">${d}</div>`).join("")}${grid}</div></div>
+    ${selList ? `<section><div class="sec-head"><h2>${parse(CAL.sel).getDate()}. ${MONTHS[parse(CAL.sel).getMonth()]}</h2><button class="btn sm ghost" data-day="">Vis hele måneden</button></div><div style="margin-top:10px">${listHtml(selList, "kal", "Ingen arrangementer denne dagen.")}</div></section>`
+      : `<section><h2 style="margin-bottom:10px">Alle i ${MONTHS[CAL.m]}</h2>${listHtml(list, "kal", `Ingen kjente arrangementer i ${MONTHS[CAL.m]}. Bruk pilene for å bla, eller legg til egne under «Mine».`)}</section>`}
+  </div>`;
+}
+
+/* ---------- Side: Året ---------- */
+const YEAR = { y: now0.getFullYear() };
+function viewAret() {
+  const evs = visible(eventsForYear(YEAR.y));
+  const months = MONTHS.map((name, i) => {
+    const me = evs.filter((e) => parse(e.date).getMonth() === i);
+    const cur = YEAR.y === now0.getFullYear() && i === now0.getMonth();
+    return `<section class="month${cur ? " now" : ""}"><h2>${name}<small>${me.length ? me.length + (me.length === 1 ? " arrangement" : " arrangementer") : ""}</small></h2>${me.length ? listHtml(me, "aret") : `<p class="meta" style="margin:0">Ingen kjente arrangementer.</p>`}</section>`;
+  }).join("");
+  $app.innerHTML = `<div class="stack"><div><h1>Året ${YEAR.y}</h1><p class="lead">Alle arrangementer gjennom året, måned for måned.</p></div>
+    <div class="row" style="justify-content:space-between"><div class="row"><button class="btn ghost" data-year="-1" aria-label="Forrige år">←</button><button class="btn ghost" data-year="1" aria-label="Neste år">→</button></div>${minorSwitch()}</div>
+    ${months}</div>`;
+}
+
+/* ---------- Side: Mine ---------- */
+function viewMine() {
+  const all = myEvents(), t = todayIso();
+  const up = all.filter((e) => endOf(e) >= t), past = all.filter((e) => endOf(e) < t).reverse();
+  const regionOpts = (main) => Object.entries(REGIONS).filter(([, r]) => r.main === main).map(([k, r]) => `<option value="${k}">${esc(r.label)}</option>`).join("");
+  $app.innerHTML = `<div class="stack"><div><h1>Mine arrangementer</h1><p class="lead">Det du skal stille på. Trykk «Jeg stiller på» på et arrangement for å legge det hit, eller legg til et nytt under.</p></div>
+    <section><h2 style="margin-bottom:10px">Kommende</h2>${listHtml(up, "mine", "Ingenting planlagt ennå. Legg til et arrangement under.")}</section>
+    <section><div class="sec-head"><h2>Legg til nytt arrangement</h2></div>
+    <form class="add" id="addForm" style="margin-top:10px" autocomplete="off">
+      <p class="meta" style="margin:0">Legg bare inn arrangementer for deltakere fra 18 år.</p>
+      <div class="field"><label for="fName">Navn</label><input type="text" id="fName" required maxlength="100" placeholder="F.eks. Bergen City Marathon"></div>
+      <div class="row"><div class="field"><label for="fDate">Dato</label><input type="date" id="fDate" required></div>
+        <div class="field"><label for="fEnd">Til dato (valgfritt)</label><input type="date" id="fEnd"></div></div>
+      <div class="row"><div class="field"><label for="fPlace">Sted</label><input type="text" id="fPlace" maxlength="80" placeholder="F.eks. Bergen"></div>
+        <div class="field"><label for="fReg">Område</label><select id="fReg"><optgroup label="Hovedområde">${regionOpts(true)}</optgroup><optgroup label="Andre steder i Norge (mindre viktig)">${regionOpts(false)}</optgroup></select></div></div>
+      <div class="row"><div class="field"><label for="fSport">Idrett</label><select id="fSport">${sportOptions("")}</select></div>
+        <div class="field"><label for="fStatus">Status</label><select id="fStatus">${STATUSES.map((s) => `<option>${s}</option>`).join("")}</select></div></div>
+      <div class="row"><div class="field"><label for="fCName">Kontaktperson (valgfritt)</label><input type="text" id="fCName" maxlength="80"></div>
+        <div class="field"><label for="fCEmail">E-post</label><input type="text" id="fCEmail" maxlength="80"></div>
+        <div class="field"><label for="fCPhone">Telefon</label><input type="text" id="fCPhone" maxlength="20"></div></div>
+      <div class="field"><label for="fLink">Lenke (valgfritt)</label><input type="url" id="fLink" placeholder="https://"></div>
+      <div class="field"><label for="fNotes">Notat (valgfritt)</label><textarea id="fNotes" rows="2" maxlength="300" placeholder="Startnummer, reise, overnatting …"></textarea></div>
+      <div><button class="btn accent" type="submit">Legg til</button></div>
+    </form></section>
+    ${past.length ? `<section><h2 style="margin-bottom:10px">Tidligere</h2>${listHtml(past, "mine")}</section>` : ""}</div>`;
+}
+
+/* ---------- Ruting ---------- */
+const VIEWS = { sok: viewSok, kalender: viewKalender, aret: viewAret, mine: viewMine };
+function route() {
+  const h = (location.hash || "#sok").slice(1);
+  const name = VIEWS[h] ? h : "sok";
+  document.querySelectorAll(".tabs a").forEach((a) => {
+    if (a.dataset.tab === name) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  });
+  VIEWS[name]();
+  updateCount();
+}
+function rerender() { const y = window.scrollY; route(); window.scrollTo(0, y); }
+function updateCount() {
+  const n = myEvents().filter((e) => endOf(e) >= todayIso()).length, el = document.getElementById("mineCount");
+  el.textContent = n; el.hidden = !n;
+}
+function toast(msg) {
+  const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2400);
+}
+
+/* ---------- Hendelser ---------- */
+document.addEventListener("click", (ev) => {
+  const el = ev.target.closest("[data-act],[data-sport],[data-cal],[data-day],[data-year]");
+  if (!el) return;
+  if (el.dataset.sport !== undefined) { F.sport = el.dataset.sport; viewSok(); return; }
+  if (el.dataset.cal !== undefined) {
+    const d = Number(el.dataset.cal);
+    if (d === 0) { CAL.y = now0.getFullYear(); CAL.m = now0.getMonth(); } else { const n = new Date(CAL.y, CAL.m + d, 1); CAL.y = n.getFullYear(); CAL.m = n.getMonth(); }
+    CAL.sel = ""; viewKalender(); return;
+  }
+  if (el.dataset.day !== undefined) { CAL.sel = CAL.sel === el.dataset.day ? "" : el.dataset.day; rerender(); return; }
+  if (el.dataset.year !== undefined) { YEAR.y += Number(el.dataset.year); viewAret(); window.scrollTo(0, 0); return; }
+  const act = el.dataset.act, key = el.dataset.key;
+  if (act === "toggle") {
+    if (store.joined[key]) { delete store.joined[key]; toast("Fjernet fra mine"); } else { store.joined[key] = "Planlagt"; toast("Lagt til under «Mine»"); }
+    save(); rerender();
+  } else if (act === "savecontact") {
+    const box = el.closest("details"), g = (k) => box.querySelector(`[data-f="${k}"]`).value.trim();
+    const c = { name: g("name"), email: g("email"), phone: g("phone") };
+    if (c.email && !okEmail(c.email)) { toast("E-postadressen ser ikke riktig ut"); return; }
+    if (c.phone && !okPhone(c.phone)) { toast("Telefonnummer kan bare ha tall, +, mellomrom og bindestrek"); return; }
+    if (c.name || c.email || c.phone) store.contacts[key] = c; else delete store.contacts[key];
+    save(); toast("Kontakt lagret"); rerender();
+  } else if (act === "del") {
+    delete store.contacts[key];
+    store.custom = store.custom.filter((c) => c.id !== key); save(); toast("Slettet"); rerender();
+  }
+});
+document.addEventListener("change", (ev) => {
+  const t = ev.target;
+  if (t.id === "showMinor") { store.showMinor = t.checked; save(); rerender(); }
+  else if (t.id === "fRegion") { F.region = t.value; updateResults(); }
+  else if (t.id === "fSportSel") { F.sport = t.value; updateResults(); }
+  else if (t.id === "fSize") { F.size = t.value; updateResults(); }
+  else if (t.id === "onlyBoard") { F.board = t.checked; updateResults(); }
+  else if (t.id === "onlyStudent") { F.student = t.checked; updateResults(); }
+  else if (t.id === "showPast") { F.past = t.checked; updateResults(); }
+  else if (t.id === "fMonth") { F.month = t.value; updateResults(); }
+  else if (t.dataset.act === "status") {
+    const c = store.custom.find((x) => x.id === t.dataset.key);
+    if (c) c.status = t.value; else store.joined[t.dataset.key] = t.value;
+    save(); rerender();
+  }
+});
+document.addEventListener("input", (ev) => { if (ev.target.id === "q") { F.q = ev.target.value; updateResults(); } });
+document.addEventListener("submit", (ev) => {
+  if (ev.target.id !== "addForm") return;
+  ev.preventDefault();
+  const v = (id) => document.getElementById(id).value.trim();
+  const date = v("fDate"), end = v("fEnd");
+  if (end && end < date) { toast("Sluttdato kan ikke være før startdato"); return; }
+  const link = v("fLink");
+  if (link && !safeUrl(link)) { toast("Lenken må starte med http:// eller https://"); return; }
+  const cn = { name: v("fCName"), email: v("fCEmail"), phone: v("fCPhone") };
+  if (cn.email && !okEmail(cn.email)) { toast("E-postadressen ser ikke riktig ut"); return; }
+  if (cn.phone && !okPhone(cn.phone)) { toast("Telefonnummer kan bare ha tall, +, mellomrom og bindestrek"); return; }
+  const cid = "c" + Date.now().toString(36);
+  if (cn.name || cn.email || cn.phone) store.contacts[cid] = cn;
+  store.custom.push({ id: cid, name: v("fName"), date, end, place: v("fPlace"), region: v("fReg"),
+    sport: v("fSport"), status: v("fStatus"), link: safeUrl(link), notes: v("fNotes") });
+  save(); toast("Arrangement lagt til"); rerender();
+});
+window.addEventListener("hashchange", () => { route(); window.scrollTo(0, 0); });
+
+/* ---------- Installer som app ---------- */
+let deferred;
+const installBtn = document.getElementById("installBtn");
+window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferred = e; installBtn.hidden = false; });
+installBtn.addEventListener("click", async () => { if (!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; installBtn.hidden = true; });
+window.addEventListener("appinstalled", () => { installBtn.hidden = true; toast("Appen er installert"); });
+const standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+if (/iphone|ipad/i.test(navigator.userAgent) && !standalone) document.getElementById("iosHint").hidden = false;
+if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register("sw.js").catch(() => {});
+
+route();

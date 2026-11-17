@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Groundtable</title>
+<meta name="description" content="Finn sportsarrangementer fra Trondheim langs kysten til Kristiansand.">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Groundtable">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="#sok" aria-label="Groundtable, til forsiden">
+      <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><path d="M16 5 4 25h24z" fill="currentColor"/><path d="M21 13l-6 12h12z" fill="var(--brand-2)"/><circle cx="23" cy="8" r="2.2" fill="var(--accent)"/></svg>
+      <span>Groundtable</span>
+    </a>
+    <nav class="tabs" aria-label="Hovedmeny">
+      <a href="#sok" data-tab="sok">Søk</a>
+      <a href="#kalender" data-tab="kalender">Denne måneden</a>
+      <a href="#aret" data-tab="aret">Året</a>
+      <a href="#mine" data-tab="mine">Mine <span class="count" id="mineCount" hidden></span></a>
+    </nav>
+    <button class="install" id="installBtn" hidden>Installer som app</button>
+  </div>
+</header>
+
+<main id="app" tabindex="-1"></main>
+
+<footer class="foot">
+  <p>Hovedfokus: Trondheim, Møre, Vestland, Rogaland og Kristiansand. Andre steder i Norge vises dempet.</p>
+  <p class="muted-note">Kun arrangementer for voksne (18+). Datoer er omtrentlige eller fra nettsøk. Sjekk alltid dato hos arrangøren.</p>
+  <p id="iosHint" class="muted-note" hidden>På iPhone: trykk Del-knappen og velg «Legg til på Hjem-skjerm».</p>
+</footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

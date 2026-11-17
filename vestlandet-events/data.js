@@ -1,0 +1,175 @@
+// Områder. main = hovedfokus (Trondheim langs kysten ned til Kristiansand)
+const REGIONS = {
+  trondelag: { label: "Trøndelag", main: true },
+  more: { label: "Møre og Romsdal", main: true },
+  vestland: { label: "Vestland", main: true },
+  rogaland: { label: "Rogaland", main: true },
+  agder: { label: "Agder (Kristiansand)", main: true },
+  ostlandet: { label: "Østlandet", main: false },
+  innlandet: { label: "Innlandet", main: false },
+  telemark: { label: "Telemark/Vestfold", main: false },
+  nord: { label: "Nord-Norge", main: false },
+};
+
+// Idretter, gruppert. SPORTS er flat liste brukt til filter og skjema.
+const SPORT_GROUPS = {
+  "Brettsport": ["Surfing", "Skateboard", "Snowboard", "Longboard", "Wakeboard og vannski", "Windsurf og kitesurf", "SUP", "BMX"],
+  "Løp og terreng": ["Løping", "Trailløp", "Hinderløp", "Friidrett", "Orientering", "Fjellsport og tur"],
+  "Sykkel": ["Sykling", "Terrengsykling"],
+  "Vann": ["Svømming", "Roing", "Padling", "Seiling", "Dykking", "Triatlon"],
+  "Luft": ["Fallskjermhopping", "Paragliding", "Seilfly"],
+  "Vinter": ["Langrenn", "Alpint", "Freeski og freeride", "Skiskyting", "Skihopp", "Skøyter", "Ishockey", "Curling"],
+  "Ball og racket": ["Fotball", "Håndball", "Basketball", "Volleyball", "Sandvolleyball", "Padel og tennis", "Badminton", "Golf", "Bowling", "Bandy"],
+  "Styrke og kamp": ["Crossfit og Hyrox", "Styrkeløft", "Kampsport", "Klatring", "Gymnastikk", "Dans og cheer"],
+  "Motor og dyr": ["Motorsport", "Rallycross og crosskart", "Racing og roadracing", "Motocross og enduro", "Ridning", "Skyting", "Bueskyting"],
+  "Annet": ["Ekstremsport", "Annet"],
+};
+const SPORTS = Object.values(SPORT_GROUPS).flat();
+// Brettsport er viktigst: vises alltid i full farge, uansett sted, og kan filtreres ut.
+const BOARD_SPORTS = SPORT_GROUPS["Brettsport"];
+
+// EKSEMPELDATA. Datoene er omtrentlige og gjentas hvert år (m = måned, d = dag).
+// Sjekk alltid dato hos arrangøren. Legg til egne på «Mine» for riktige datoer.
+const SEED = [
+  { id: "bergen-city-marathon", contact: { name: "Janne Jensen", role: "arrangementssjef", org: "Bergen City Marathon", email: "janne@bergencitymarathon.no" }, on: { 2027: { m: 4, d: 24 } }, url: "https://bergencitymarathon.no/", big: true, name: "Bergen City Marathon", m: 4, d: 25, place: "Bergen", region: "vestland", sport: "Løping" },
+  { id: "voss-ekstremsportveko", board: true, on: { 2027: { m: 6, d: 27, end: 34 } }, url: "https://ekstremsportveko.com/en", big: true, name: "Ekstremsportveko", m: 6, d: 20, end: 28, place: "Voss", region: "vestland", sport: "Ekstremsport" },
+  { id: "norseman", on: { 2027: { m: 8, d: 7 } }, url: "https://www.nxtri.com/", big: true, name: "Norseman Xtreme Triathlon", m: 8, d: 1, place: "Eidfjord", region: "vestland", sport: "Triatlon" },
+  { id: "skala-opp", big: true, name: "Skåla Opp", m: 8, d: 8, place: "Loen, Stryn", region: "vestland", sport: "Løping" },
+  { id: "stavanger-maraton", contact: { name: "Johannes Økland", role: "løpsleder", org: "GTI Friidrett", email: "lop@gti-friidrett.no", phone: "472 38 439" }, url: "https://stavangermarathon.no/", big: true, name: "Stavanger Maraton", m: 8, d: 29, place: "Stavanger", region: "rogaland", sport: "Løping" },
+  { id: "trondheim-maraton", contact: { name: "Hilde Martinsen", role: "prosjektleder", org: "Bedriftsidretten", email: "hilde.martinsen@bedriftsidretten.no" }, on: { 2027: { m: 9, d: 4 } }, url: "https://www.trondheimmaraton.no/", big: true, name: "Trondheim Maraton", m: 9, d: 6, place: "Trondheim", region: "trondelag", sport: "Løping" },
+  { id: "lysefjorden-opp", name: "Lysefjorden Opp", m: 9, d: 19, place: "Forsand", region: "rogaland", sport: "Løping" },
+  { id: "holmenkollen-skifestival", url: "https://www.visitoslo.com/whats-on/holmenkollen-ski-festival", big: true, name: "Holmenkollen Skifestival", m: 3, d: 13, end: 14, place: "Oslo", region: "ostlandet", sport: "Langrenn" },
+  { id: "birkebeinerrennet", contact: { org: "Birken AS", email: "info@birkebeiner.no", phone: "41 77 29 00" }, url: "https://birken.no/no", big: true, name: "Birkebeinerrennet", m: 3, d: 20, place: "Rena–Lillehammer", region: "innlandet", sport: "Langrenn" },
+  { id: "midnattsol-maraton", contact: { name: "Nils I. Hætta", role: "race director", org: "Midnight Sun Marathon", email: "nils@msm.no" }, url: "https://msm.no/", big: true, name: "Tromsø Midnattsolmaraton", m: 6, d: 19, place: "Tromsø", region: "nord", sport: "Løping" },
+  { id: "oslo-maraton", contact: { name: "Bodil Støylen", role: "vikarierende daglig leder", org: "Oslo Maraton", email: "bodil@oslomaraton.no" }, url: "https://oslomaraton.no/", big: true, name: "Oslo Maraton", m: 9, d: 18, place: "Oslo", region: "ostlandet", sport: "Løping" },
+
+  // --- Mindre arrangementer for voksne, med datoer for 2026 funnet via nettsøk (year = kun dette året) ---
+  { id: "molde-7-topper", url: "https://www.molde7topper.no/", year: 2026, name: "Molde 7 Topper", m: 5, d: 30, place: "Molde", region: "more", sport: "Løping" },
+  { id: "haugesund-halvmaraton", info: "https://trainerday.com/events/no/haugesund-halvmaraton-2026", year: 2026, name: "Haugesund Halvmaraton", m: 6, d: 6, place: "Haugesund", region: "rogaland", sport: "Løping" },
+  { id: "romsdal-5-10-half", info: "https://trainerday.com/events/no/romsdal-5-10-half-2026", year: 2026, name: "Romsdal 5/10/Half", m: 7, d: 22, place: "Stavik, Romsdal", region: "more", sport: "Løping" },
+  { id: "mefjellet-opp", year: 2026, name: "Mefjellet Opp", m: 7, d: 18, place: "Valldal", region: "more", sport: "Løping" },
+  { id: "valestrandsmarka-rundt", url: "https://valestrandsmarka.no/", year: 2026, name: "Valestrandsmarka Rundt", m: 8, d: 7, place: "Osterøy", region: "vestland", sport: "Løping" },
+  { id: "hardanger-halvmaraton", year: 2026, name: "Hardanger Halvmaraton", m: 8, d: 8, place: "Øystese", region: "vestland", sport: "Løping" },
+  { id: "styrkeproven-rett-vest", year: 2026, name: "Styrkeprøven Rett Vest", m: 8, d: 29, place: "Bergenshalvøya", region: "vestland", sport: "Løping" },
+  { id: "knarvik-halvmaraton", info: "https://trainerday.com/events/no/lopskalender-no-knarvik_halvmaraton-2026-09-04", year: 2026, name: "Knarvik Halvmaraton", m: 9, d: 4, place: "Knarvik", region: "vestland", sport: "Løping" },
+  { id: "romsdalseggen-2026", contact: { name: "Solrun Sylte", role: "festivalsjef", org: "Norsk Fjellfestival", email: "solrun@norskfjellfestival.no", phone: "415 45 333" }, url: "https://www.norskfjellfestival.no/romsdalseggenlopet-hovedside", year: 2026, name: "Romsdalseggenløpet", m: 9, d: 5, place: "Rauma", region: "more", sport: "Løping" },
+  { id: "navy-race-stavanger", contact: { name: "Truls-Petter Green Strøm", role: "daglig leder", org: "Navy Race", email: "truls-petter@navyrace.no", phone: "+47 452 63 065" }, url: "https://www.navyrace.no/", year: 2026, name: "Navy Race Stavanger", m: 9, d: 12, place: "Stavanger", region: "rogaland", sport: "Hinderløp" },
+  { id: "backyard-kristiansand", year: 2026, name: "Backyard Kristiansand", m: 9, d: 19, place: "Kristiansand", region: "agder", sport: "Løping" },
+  { id: "brakvatnet-halvmaraton", info: "https://trainerday.com/events/no/bergan-bygg-brakvatnet-halvmaraton-stafett-2026", year: 2026, name: "Brakvatnet Halvmaraton", m: 9, d: 19, place: "Osterøy", region: "vestland", sport: "Løping" },
+  { id: "kringsja-opp", year: 2026, name: "Kringsjå Opp", m: 9, d: 20, place: "Haugesund", region: "rogaland", sport: "Løping" },
+  { id: "stoltzekleiven-opp", year: 2026, name: "Stoltzekleiven Opp", m: 9, d: 25, end: 26, place: "Bergen", region: "vestland", sport: "Løping" },
+  { id: "backyard-stavanger", year: 2026, name: "Backyard Stavanger", m: 9, d: 26, place: "Stavanger", region: "rogaland", sport: "Løping" },
+  { id: "sorfjorden-halvmaraton", url: "https://www.sorfjordenhalvmaraton.no/", year: 2026, name: "Sørfjorden Halvmaraton", m: 10, d: 3, place: "Arna, Bergen", region: "vestland", sport: "Løping" },
+  { id: "gloppen-halvmaraton", info: "https://trainerday.com/events/no/gloppen-halvmaraton-2026", year: 2026, name: "Gloppen Halvmaraton", m: 10, d: 3, place: "Sandane", region: "vestland", sport: "Løping" },
+  { id: "oktobermila", info: "https://trainerday.com/events/no/oktobermila-2026", year: 2026, name: "Oktobermila", m: 10, d: 18, place: "Lerstad, Ålesund", region: "more", sport: "Løping" },
+  { id: "nightrun-bergen", url: "https://www.nightrun.no/", year: 2026, name: "Nightrun Bergen", m: 10, d: 29, place: "Fløysletten, Bergen", region: "vestland", sport: "Løping" },
+  { id: "nattlop-kristiansand", year: 2026, name: "Nattløp i Kristiansand", m: 11, d: 3, place: "Baneheia, Kristiansand", region: "agder", sport: "Løping" },
+  { id: "sorlandstesten", info: "https://trainerday.com/events/no/s-rlandstesten-2026", year: 2026, name: "Sørlandstesten", m: 12, d: 13, place: "Kristiansand", region: "agder", sport: "Løping" },
+
+  // --- Trondheim, Møre og Romsdal og sykkelritt (nettsøk, sjekk dato hos arrangør) ---
+  { id: "tour-de-froya", contact: { name: "Janet Eléna Flåhammer", role: "leder av organisasjonskomiteen", org: "Tour de Frøya", email: "post@tourdefroya.no" }, url: "https://tourdefroya.no/", year: 2026, name: "Tour de Frøya", m: 5, d: 30, place: "Frøya", region: "trondelag", sport: "Sykling" },
+  { id: "bdo-mila-kristiansund", year: 2026, name: "BDO-mila Kristiansund", m: 5, d: 28, place: "Kristiansund", region: "more", sport: "Løping" },
+  { id: "alesund-maraton", contact: { name: "Monica Isaksen", role: "avdelingsleder", org: "Bedriftsidretten Møre og Romsdal", email: "monica.isaksen@bedriftsidretten.no", phone: "+47 476 21 538" }, url: "https://www.alesundmaraton.no/", year: 2026, name: "Ålesund Maraton", m: 6, d: 6, place: "Ålesund", region: "more", sport: "Løping" },
+  { id: "bergen-voss", contact: { org: "Bergen Cykleklub", email: "post@bergenvoss.no" }, url: "https://www.bergen-voss.no/", year: 2026, name: "Bergen–Voss", m: 6, d: 6, place: "Bergen–Voss", region: "vestland", sport: "Sykling" },
+  { id: "letape-trondheim", year: 2026, name: "L'Étape Trondheim", m: 6, d: 13, place: "Trondheim", region: "trondelag", sport: "Sykling" },
+  { id: "styrkeproven", contact: { org: "Styrkeprøven AS", phone: "993 39 750" }, url: "https://styrkeproven.no/", year: 2027, name: "Den Store Styrkeprøven", m: 6, d: 18, end: 19, place: "Trondheim–Oslo", region: "trondelag", sport: "Sykling" },
+  { id: "smola-halvmaraton", info: "https://trainerday.com/events/no/norges-vakreste-halvmaraton-2026-2026", year: 2026, name: "Norges vakreste halvmaraton", m: 7, d: 18, place: "Hopen, Smøla", region: "more", sport: "Løping" },
+  { id: "stranda-fjord-trail", year: 2026, name: "Stranda Fjord Trail Festival", m: 8, d: 12, end: 15, place: "Stranda", region: "more", sport: "Løping" },
+  { id: "lysebotn-bryne", contact: { name: "Inge Løland", role: "rittleder", org: "Bryne CK", email: "post@bryneck.no" }, url: "https://lysebotn-bryne.no/", year: 2026, name: "Lysebotn–Bryne", m: 8, d: 15, place: "Sirdal–Bryne", region: "rogaland", sport: "Sykling" },
+  { id: "tysvaerrittet", info: "https://trainerday.com/events/no/tysv-rrittet-2026", year: 2026, name: "Tysværrittet", m: 8, d: 23, place: "Tysvær", region: "rogaland", sport: "Sykling" },
+  { id: "terrengkarusellen-trondheim", info: "https://trainerday.com/events/no/gotrail-no-terrengkarusellen-trondheim-2026-09-24", year: 2026, name: "Terrengkarusellen Trondheim", m: 9, d: 24, place: "Trondheim", region: "trondelag", sport: "Løping" },
+  { id: "nightrun-trondheim", info: "https://trainerday.com/events/no/nightrun-trondheim-2026-c957c015", year: 2026, name: "Nightrun Trondheim", m: 10, d: 26, place: "Trondheim", region: "trondelag", sport: "Løping" },
+  { id: "orsta-fjellmaraton", url: "https://gotrail.run/en/event/orsta-fjellmaraton", year: 2027, name: "Ørsta Fjellmaraton", m: 6, d: 5, place: "Ørsta", region: "more", sport: "Løping" },
+
+  // --- Flere idretter (nettsøk, sjekk dato hos arrangør) ---
+  { id: "nc-buldring-kristiansund", year: 2026, name: "Norgescup buldring", m: 1, d: 31, end: 32, place: "Kristiansund", region: "more", sport: "Klatring" },
+  { id: "nc-buldring-trondheim", year: 2026, name: "Norgescup buldring", m: 2, d: 28, end: 29, place: "Trondheim", region: "trondelag", sport: "Klatring" },
+  { id: "nm-buldring-kristiansand", year: 2026, name: "NM buldring", m: 3, d: 21, end: 22, place: "Kristiansand", region: "agder", sport: "Klatring" },
+  { id: "veko-trail", url: "https://ekstremsportveko.com/en/sports/trail-running/veko-trail", year: 2026, name: "Veko Trail", m: 6, d: 27, place: "Voss", region: "vestland", sport: "Trailløp" },
+  { id: "tall-ships-stavanger", url: "https://www.stavanger.kommune.no/en/the-tall-ships-races/news/the-tall-ships-races-to-stavanger-in-july-2026", year: 2026, name: "The Tall Ships Races", m: 7, d: 22, end: 25, place: "Stavanger", region: "rogaland", sport: "Seiling" },
+  { id: "yngling-vm", url: "https://www.yngling.org/regatta-dates-2026-2029/", year: 2026, name: "Yngling-VM", m: 8, d: 1, end: 8, place: "Bergen", region: "vestland", sport: "Seiling" },
+  { id: "nm-apent-vann", year: 2026, name: "NM åpent vann", m: 8, d: 15, place: "Naustdal, Sunnfjord", region: "vestland", sport: "Svømming" },
+  { id: "djupadalten", info: "https://trainerday.com/events/no/djupadalten-ubekreftet-dato", year: 2026, name: "Djupadalten", m: 10, d: 17, place: "Haugesund", region: "rogaland", sport: "Trailløp" },
+  { id: "hyrox-oslo", url: "https://norway.hyrox.com/event/hyrox-oslo-season-26-27-4x21pg", year: 2026, name: "Hyrox Oslo", m: 9, d: 25, end: 27, place: "Lillestrøm", region: "ostlandet", sport: "Crossfit og Hyrox" },
+  { id: "blodslitet", url: "https://gotrail.run/no/event/blodslitet-nm-ultralang", year: 2026, name: "Blodslitet (NM ultralang)", m: 10, d: 17, place: "Fredrikstad", region: "ostlandet", sport: "Orientering" },
+
+  // --- Ski og snowboard, vinter 2026/27 (nettsøk, sjekk dato hos arrangør) ---
+  { id: "skarverennet", year: 2027, info: "https://trainerday.com/events/no/skarverennet-2027", name: "Skarverennet", m: 4, d: 17, place: "Finse", region: "vestland", sport: "Langrenn" },
+  { id: "haukelirennet", year: 2027, url: "https://gotrail.run/no/event/haukelirennet", name: "Haukelirennet", m: 4, d: 10, place: "Haukeliseter", region: "telemark", sport: "Langrenn" },
+  { id: "open-klasse", url: "https://www.norwaysbest.com/en/myrkdalen/events/open-klasse", name: "Open Klasse (ski og snowboard)", m: 4, d: 23, end: 27, place: "Myrkdalen, Voss", region: "vestland", sport: "Snowboard" },
+  { id: "nc-bigair-geilo", year: 2026, url: "https://www.skigeilo.no/en/norwegian-cup-big-air-and-slopestyle", name: "Norgescup Big Air og Slopestyle", m: 3, d: 21, end: 22, place: "Geilo", region: "ostlandet", sport: "Snowboard" },
+
+  // --- Vinter 2027 og flere (nettsøk, sjekk dato hos arrangør) ---
+  { id: "magni-maraton-106", year: 2027, info: "https://trainerday.com/events/no/magni-maraton-106-2027", name: "Magni Maraton 106", m: 1, d: 9, place: "Stavset, Trondheim", region: "trondelag", sport: "Løping" },
+  { id: "vinterkarusellen-bergen-5", year: 2027, info: "https://trainerday.com/events/no/vinterkarusellen-5-l-p-2027-f80abf44", name: "Vinterkarusellen, 5. løp", m: 1, d: 9, place: "Fana Stadion, Bergen", region: "vestland", sport: "Løping" },
+  { id: "solastranden-halvmaraton", year: 2027, info: "https://trainerday.com/el/events/no/hoka-solastranden-halvmaraton-2027", name: "HOKA Solastranden halvmaraton", m: 1, d: 16, place: "Sola", region: "rogaland", sport: "Løping" },
+  { id: "bergen-vintermaraton", year: 2027, info: "https://trainerday.com/events/no/bergen-vintermaraton-2027", name: "Bergen Vintermaraton", m: 1, d: 23, place: "Fana Stadion, Bergen", region: "vestland", sport: "Løping" },
+  { id: "trondheim-triatlon", year: 2026, info: "https://trainerday.com/events/no/trondheim-triatlon", name: "Trondheim Triatlon", m: 8, d: 22, place: "Munkholmen, Trondheim", region: "trondelag", sport: "Triatlon" },
+
+  // --- Nattlig søk 10. nov. 2026 ---
+  { id: "alesund-vinterkarusell", year: 2027, info: "https://trainerday.com/events/no/alesund-vinterkarusell-2027-270ff70d", name: "Ålesund Vinterkarusell", m: 3, d: 14, place: "Eikenosa, Ålesund", region: "more", sport: "Løping" },
+  { id: "maratonkarusellen-bergen-ultra", year: 2027, info: "https://www.marathons.com/no/events/maratonkarusellen-bergen-ultra_2YKce", name: "Maratonkarusellen Bergen Ultra (100 km)", m: 4, d: 4, place: "Bergen", region: "vestland", sport: "Løping" },
+  { id: "trondheimstafetten", year: 2027, info: "https://running.life/no/event/trondheimstafetten", name: "Trondheimstafetten", m: 5, d: 29, place: "Trondheim", region: "trondelag", sport: "Løping" },
+  { id: "bergen-fjellmaraton", year: 2027, url: "https://gotrail.run/no/event/bergen-fjellmaraton", name: "Bergen Fjellmaraton", m: 6, d: 3, place: "Bergen", region: "vestland", sport: "Trailløp" },
+  { id: "triatlon-hove-arendal", year: 2027, info: "https://running.life/triathlonkalender-no/norge", name: "Triatlon på Hove (inkl. NM normaldistanse)", m: 6, d: 12, place: "Hove, Tromøya, Arendal", region: "agder", sport: "Triatlon" },
+  { id: "ecotrail-bergen", year: 2027, info: "https://gotrail.run/en/calendar/norway/vestland/bergen", name: "Ecotrail Bergen", m: 6, d: 27, place: "Bergen", region: "vestland", sport: "Trailløp" },
+  { id: "oslo-bergen-trail", year: 2027, url: "https://itra.run/Races/RaceCourse/Oslo.Bergen.Trail.Oslo.Bergen.500K/2027/113962", name: "Oslo Bergen Trail (500 km)", m: 7, d: 1, end: 9, place: "Oslo–Bergen", region: "ostlandet", sport: "Trailløp" },
+  { id: "tripp-trapp-triathlon", year: 2027, url: "https://www.visitnorway.no/events//tripp-trapp-triathlon/512537/", name: "Tripp Trapp Triathlon", m: 8, d: 21, place: "Lysefjorden/Stavanger", region: "rogaland", sport: "Triatlon" },
+  { id: "torvikbukt-6-topper", year: 2026, info: "https://trainerday.com/events/no/torvikbukt-rundt-2026-2026", name: "Torvikbukt 6 Topper", m: 9, d: 12, place: "Torvikbukt", region: "more", sport: "Løping" },
+
+  // --- Brettsport (surf, skate, snowboard) ---
+  { id: "nm-skateboard-stavanger", year: 2026, info: "https://kommunikasjon.ntb.no/pressemelding/19012468/nm-skateboard-2026-stavanger-open-2026?publisherId=17849136", name: "NM skateboard / Stavanger Open", m: 8, d: 14, end: 16, place: "Tasta skatepark, Stavanger", region: "rogaland", sport: "Skateboard" },
+  { id: "europa-cup-trysil", year: 2026, info: "https://www.skistar.com/en/inspiration/events/events-in-trysil/europa-cup-slopestyle", name: "Europa Cup slopestyle og big air", m: 4, d: 7, end: 10, place: "Trysil", region: "innlandet", sport: "Snowboard" },
+  // --- Brettforbundets eventkalender (hentet 11. nov. 2026) ---
+  { id: "bf-nc-dombas", year: 2027, official: true, url: "https://www.brettforbundet.no/snow/events", name: "Norgescup slopestyle og big air", m: 1, d: 30, place: "Dombås", region: "innlandet", sport: "Snowboard" },
+  { id: "bf-nc-geilo", year: 2027, official: true, url: "https://www.brettforbundet.no/snow/events", name: "Norgescup slopestyle og big air", m: 2, d: 6, place: "Geilo", region: "ostlandet", sport: "Snowboard" },
+  { id: "bf-nc-nm-kongsberg-sbx", year: 2027, official: true, url: "https://www.brettforbundet.no/snow/events", name: "Norgescup og NM boardercross", m: 2, d: 20, place: "Kongsberg", region: "ostlandet", sport: "Snowboard" },
+  { id: "bf-nc-vassfjellet", year: 2027, official: true, url: "https://www.brettforbundet.no/snow/events", name: "Norgescup slopestyle og big air", m: 3, d: 6, place: "Vassfjellet", region: "trondelag", sport: "Snowboard" },
+  { id: "bf-nc-wyller", year: 2027, official: true, url: "https://www.brettforbundet.no/snow/events", name: "Norgescup big air", m: 3, d: 13, place: "Wyller, Oslo", region: "ostlandet", sport: "Snowboard" },
+  { id: "bf-nm-halfpipe", year: 2027, official: true, url: "https://www.brettforbundet.no/snow/events", name: "NM halfpipe", m: 3, d: 14, place: "Skimore, Oslo", region: "ostlandet", sport: "Snowboard" },
+  { id: "bf-ec-trysil", year: 2027, official: true, url: "https://www.brettforbundet.no/snow/events", name: "Europacup slopestyle", m: 4, d: 5, place: "Trysil", region: "innlandet", sport: "Snowboard" },
+  { id: "bf-nm-hemsedal", year: 2027, official: true, url: "https://www.brettforbundet.no/snow/events", name: "NM slopestyle og big air", m: 4, d: 16, place: "Hemsedal", region: "ostlandet", sport: "Snowboard" },
+  { id: "bf-nc-skate-kristiansand", year: 2026, official: true, url: "https://www.brettforbundet.no/skate/events", name: "Norgescup skateboard", m: 12, d: 5, place: "Kristiansand", region: "agder", sport: "Skateboard" },
+  // --- Motorsport 2027 (bilsport.no, racingnm.no, gatebil.no, hentet 11. nov. 2026) ---
+  { id: "nm-rx1", year: 2027, official: "Norsk bilsport", url: "https://bilsport.no/terminliste-nm-rallycross-2027/", name: "NM og NC Rallycross", m: 5, d: 8, end: 9, place: "NMK Konsmo", region: "agder", sport: "Rallycross og crosskart" },
+  { id: "nm-rx2", year: 2027, official: "Norsk bilsport", url: "https://bilsport.no/terminliste-nm-rallycross-2027/", name: "NM og NC Rallycross", m: 5, d: 29, end: 30, place: "NMK Hell", region: "trondelag", sport: "Rallycross og crosskart" },
+  { id: "nm-rx3", year: 2027, official: "Norsk bilsport", url: "https://bilsport.no/terminliste-nm-rallycross-2027/", name: "NM og NC Rallycross", m: 6, d: 12, end: 13, place: "KNA Solør Motorsport", region: "innlandet", sport: "Rallycross og crosskart" },
+  { id: "nm-rx4", year: 2027, official: "Norsk bilsport", url: "https://bilsport.no/terminliste-nm-rallycross-2027/", name: "NM og NC Rallycross", m: 8, d: 28, end: 29, place: "Indre Østfold Motorsport", region: "ostlandet", sport: "Rallycross og crosskart" },
+  { id: "nm-rx5", year: 2027, official: "Norsk bilsport", url: "https://bilsport.no/terminliste-nm-rallycross-2027/", name: "NM og NC Rallycross", m: 9, d: 11, end: 12, place: "NMK Grenland", region: "telemark", sport: "Rallycross og crosskart" },
+  { id: "nm-ck1", year: 2027, official: "Norsk bilsport", url: "https://bilsport.no/terminliste-nm-crosskart-2027/", name: "NM og NC Crosskart", m: 5, d: 1, end: 2, place: "KNA Solør", region: "innlandet", sport: "Rallycross og crosskart" },
+  { id: "nm-ck2", year: 2027, official: "Norsk bilsport", url: "https://bilsport.no/terminliste-nm-crosskart-2027/", name: "NM og NC Crosskart", m: 6, d: 5, end: 6, place: "NMK Vikedal", region: "rogaland", sport: "Rallycross og crosskart" },
+  { id: "nm-ck3", year: 2027, official: "Norsk bilsport", url: "https://bilsport.no/terminliste-nm-crosskart-2027/", name: "NM og NC Crosskart", m: 6, d: 26, end: 27, place: "NMK Melhus", region: "trondelag", sport: "Rallycross og crosskart" },
+  { id: "nm-ck4", year: 2027, official: "Norsk bilsport", url: "https://bilsport.no/terminliste-nm-crosskart-2027/", name: "NM og NC Crosskart", m: 8, d: 14, end: 15, place: "NMK Gardermoen", region: "ostlandet", sport: "Rallycross og crosskart" },
+  { id: "nm-ck5", year: 2027, official: "Norsk bilsport", url: "https://bilsport.no/terminliste-nm-crosskart-2027/", name: "NM og NC Crosskart", m: 9, d: 4, end: 5, place: "NMK Hell", region: "trondelag", sport: "Rallycross og crosskart" },
+  { id: "nm-ck6", year: 2027, official: "Norsk bilsport", url: "https://bilsport.no/terminliste-nm-crosskart-2027/", name: "NM og NC Crosskart", m: 9, d: 18, end: 19, place: "NMK Krabyskogen", region: "ostlandet", sport: "Rallycross og crosskart" },
+  { id: "nm-rn1", year: 2027, official: "Racing NM", url: "https://www.racingnm.no/post/rekordtidlig-start-i-2027", name: "Racing NM: Asfalt Panorama", m: 4, d: 24, end: 25, place: "Motorcenter Norway, Sokndal", region: "rogaland", sport: "Racing og roadracing" },
+  { id: "nm-rn2", year: 2027, official: "Racing NM", url: "https://www.racingnm.no/post/rekordtidlig-start-i-2027", name: "Racing NM", m: 5, d: 8, end: 9, place: "Vålerbanen", region: "ostlandet", sport: "Racing og roadracing" },
+  { id: "nm-rn3", year: 2027, official: "Racing NM", url: "https://www.racingnm.no/post/rekordtidlig-start-i-2027", name: "Racing NM: Asfalt Supercars", m: 6, d: 12, end: 13, place: "Rudskogen", region: "ostlandet", sport: "Racing og roadracing" },
+  { id: "nm-rn4", year: 2027, official: "Racing NM", url: "https://www.racingnm.no/post/rekordtidlig-start-i-2027", name: "Racing NM: Asfalt Classic", m: 8, d: 14, end: 15, place: "Rudskogen", region: "ostlandet", sport: "Racing og roadracing" },
+  { id: "nm-rn5", year: 2027, official: "Racing NM", url: "https://www.racingnm.no/post/rekordtidlig-start-i-2027", name: "Racing NM: sesongavslutning", m: 9, d: 4, end: 5, place: "Vålerbanen", region: "ostlandet", sport: "Racing og roadracing" },
+  { id: "gatebil-valerbanen", year: 2027, official: "Gatebil", url: "https://gatebil.no/", name: "Gatebil Festival Vålerbanen", m: 5, d: 21, end: 23, place: "Vålerbanen", region: "ostlandet", sport: "Racing og roadracing" },
+  { id: "gatebil-rudskogen", year: 2027, official: "Gatebil", url: "https://gatebil.no/", name: "Gatebil Rudskogen Main Festival", m: 7, d: 8, end: 11, place: "Rudskogen", region: "ostlandet", sport: "Racing og roadracing" },
+  // --- Nattlig søk 11. nov. 2026 ---
+  { id: "skagerrakmila", year: 2027, info: "https://trainerday.com/hu/events/no/skagerrakmila-2027-2027", name: "Skagerrakmila (10 km)", m: 6, d: 18, place: "Arendal", region: "agder", sport: "Løping" },
+  { id: "stavanger-sunset-marathon", year: 2027, info: "https://trainerday.com/events/no/stavanger-sunset-marathon-solnedgangen-2027", name: "Stavanger Sunset Marathon", m: 6, d: 19, place: "Sola", region: "rogaland", sport: "Løping" },
+  { id: "sandnes-halvmaraton", year: 2026, info: "https://running.life/no/event/sandnes-halvmaraton", name: "Sandnes halvmaraton", m: 9, d: 19, place: "Bogafjellhallen, Sandnes", region: "rogaland", sport: "Løping" },
+  // --- Søk 17. nov. 2026 (aggregatorer som trainerday, running.life og gotrail; sjekk dato hos arrangør) ---
+  { id: "marka-rundt-trondheim", year: 2027, info: "https://trainerday.com/events/no/marka-rundt-2027-2027", name: "Marka Rundt (20 og 40 km)", m: 2, d: 15, place: "Trondheim", region: "trondelag", sport: "Trailløp" },
+  { id: "maratonkarusellen-bergen-feb", year: 2027, info: "https://gotrail.run/en/event/maratonkarusellen/2027-02-27", name: "Maratonkarusellen Bergen (maraton og halvmaraton)", m: 2, d: 27, place: "Bergen", region: "vestland", sport: "Løping" },
+  { id: "maratonkarusellen-bergen-des", year: 2027, info: "https://gotrail.run/en/event/maratonkarusellen/2027-12-04", name: "Maratonkarusellen Bergen (21–42 km)", m: 12, d: 4, place: "Bergen", region: "vestland", sport: "Løping" },
+  { id: "vinterkarusellen-sorlandet", year: 2027, info: "https://trainerday.com/events/no/vinterkarusellen-s-rlandet", name: "Vinterkarusellen Sørlandet", m: 1, d: 23, place: "Aquarama, Kristiansand", region: "agder", sport: "Løping" },
+  { id: "tyn-deg-5k-kristiansand", year: 2027, info: "https://trainerday.com/events/no/tyn-deg-5k-4ed76372", name: "Tyn deg 5K", m: 5, d: 1, place: "Kristiansand", region: "agder", sport: "Løping" },
+  { id: "sommerlopet-kristiansand", year: 2027, info: "https://trainerday.com/events/no/sommerl-pet-a5b35e03", name: "Sommerløpet", m: 6, d: 5, place: "Kristiansand", region: "agder", sport: "Løping" },
+  { id: "backyard-kristiansand-2027", year: 2027, info: "https://running.life/en/event/backyard-kristiansand", name: "Backyard Kristiansand", m: 9, d: 18, place: "Kristiansand", region: "agder", sport: "Løping" },
+  { id: "siddislopet-stavanger", year: 2027, info: "https://trainerday.com/events/no/siddisl-pet-5bc82e37", name: "Siddisløpet (8,1 km)", m: 4, d: 24, place: "Stavanger", region: "rogaland", sport: "Løping" },
+  { id: "stavanger-5k", year: 2027, info: "https://trainerday.com/events/no/stavanger-5k", name: "Stavanger 5K", m: 5, d: 29, place: "Stavanger", region: "rogaland", sport: "Løping" },
+  { id: "nordsjorittet", year: 2027, info: "https://www.fjordnorway.com/en/events/nordsjorittet-from-egersund-to-sandnes-eayoxbzsnwvpdoycruchq", name: "Nordsjørittet", m: 6, d: 12, place: "Egersund–Sandnes", region: "rogaland", sport: "Sykling" },
+  { id: "sommernattslopet-stavanger", year: 2027, info: "https://running.life/en/event/sommernattslopet-stavanger", name: "Sommernattsløpet Stavanger", m: 6, d: 15, place: "Stavanger", region: "rogaland", sport: "Løping" },
+  { id: "storlirennet", year: 2027, url: "https://skiclassics.com/events/challengers/storlirennet/", name: "Storlirennet", m: 4, d: 10, place: "Storlien–Meråker", region: "trondelag", sport: "Langrenn" },
+  { id: "arctic-alta-fatbike", year: 2027, info: "https://trainerday.com/events/no/arctic-alta-fatbikerace-2027-2027", name: "Arctic Alta Fatbikerace (46 km)", m: 2, d: 21, place: "Alta", region: "nord", sport: "Terrengsykling" },
+  { id: "arctic-alta-skimaraton", year: 2027, info: "https://trainerday.com/events/no/arctic-alta-skimaraton-2027", name: "Arctic Alta Skimaraton", m: 2, d: 20, place: "Alta", region: "nord", sport: "Langrenn" },
+  // --- Studentarrangementer (student: true) ---
+  { id: "studentlekene-trondheim-2027", student: true, year: 2027, url: "https://www.sltrondheim.no/", info: "https://www.studentidrett.no/arrangementer/studentlekene-trondheim-2027", name: "Studentlekene Trondheim (Student-NM og Studentcup)", m: 2, d: 24, end: 27, place: "Trondheim", region: "trondelag", sport: "Annet", big: true },
+  { id: "isfit-2027", student: true, year: 2027, url: "https://www.isfit.org/", name: "ISFiT, internasjonal studentfestival", m: 2, d: 11, end: 21, place: "Trondheim", region: "trondelag", sport: "Annet", big: true },
+  { id: "summit2-senja", year: 2027, url: "https://www.skiclassics.com/livecenter/summit-2-senja/", name: "Grand Finale Summit 2 Senja (60 km)", m: 4, d: 4, place: "Senja", region: "nord", sport: "Langrenn" },
+];
