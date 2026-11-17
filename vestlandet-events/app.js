@@ -32,7 +32,10 @@ function contactHtml(e) {
     `<details class="cedit"><summary>${c ? "Endre kontakt" : "Legg til kontaktperson"}</summary><div class="row">${f("name", "Navn", "Kontaktperson")}${f("email", "E-post", "navn@eksempel.no")}${f("phone", "Telefon", "900 00 000")}<button type="button" class="btn sm" data-act="savecontact" data-key="${esc(e.key)}">Lagre</button></div></details>`;
 }
 const isBoard = (ev) => !!ev.board || BOARD_SPORTS.includes(ev.sport);
-const isMain = (ev) => isBoard(ev) || !!(REGIONS[ev.region] && REGIONS[ev.region].main);
+/* Små løp (løping, trail, hinderløp) er bare viktige i Bergen og Oslo. Alle andre steder vises de dempet. */
+const RUN_SPORTS = ["Løping", "Trailløp", "Hinderløp"];
+const isSmallRunOutsideHome = (ev) => RUN_SPORTS.includes(ev.sport) && !ev.big && !/bergen|oslo/i.test(ev.place || "");
+const isMain = (ev) => isBoard(ev) || (!!(REGIONS[ev.region] && REGIONS[ev.region].main) && !isSmallRunOutsideHome(ev));
 
 /* ---------- Lagring (kun denne nettleseren) ---------- */
 let store = { custom: [], joined: {}, contacts: {}, showMinor: true };
