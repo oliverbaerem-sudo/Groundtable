@@ -134,6 +134,42 @@ const minorSwitch = () => `<label class="switch"><input type="checkbox" id="show
 const visible = (evs) => store.showSmall ? evs : evs.filter((e) => !isMuted(e));
 
 const sportOptions = (sel, group) => Object.entries(SPORT_GROUPS).filter(([g]) => !group || g === group).map(([g, list]) => `<optgroup label="${esc(g)}">${list.map((s) => `<option${s === sel ? " selected" : ""}>${esc(s)}</option>`).join("")}</optgroup>`).join("");
+
+/* ---------- Side: Forside (oversikt med kategorier) ---------- */
+const F0 = () => ({ q: "", sport: "", group: "", region: "", month: "", size: "", past: false, board: false, student: false });
+function viewHjem() {
+  const all = visible(upcoming(false)), t0 = new Date();
+  const nextBoard = all.find(isBoard), nb = nextBoard;
+  const nextLine = nb ? `<p class="next-line"><b>Neste brettarrangement:</b> ${esc(nb.name)}, ${esc(nb.place)} · ${parse(nb.date).getDate()}. ${MONTHS[parse(nb.date).getMonth()]}</p>` : "";
+  const tile = (go, n, title, sub, color) => `<button type="button" class="tile${n ? "" : " empty-t"}" data-go="${esc(go)}" style="--c:${color || "var(--brand)"}"><span class="tile-n">${n}</span><span class="tile-t">${esc(title)}</span>${sub ? `<span class="tile-s">${esc(sub)}</span>` : ""}</button>`;
+  const sportTiles = Object.entries(SPORT_GROUPS).map(([g, list]) => {
+    const ge = all.filter((e) => list.includes(e.sport)), have = [...new Set(ge.map((e) => e.sport))];
+    return tile("group:" + g, ge.length, g, (have.length ? have : list).slice(0, 3).join(", "), GROUP_COLORS[g]);
+  }).join("");
+  const rc = (k) => all.filter((e) => e.region === k).length;
+  const mainR = Object.entries(REGIONS).filter(([, r]) => r.main), restR = Object.entries(REGIONS).filter(([, r]) => !r.main);
+  const regionTiles = mainR.map(([k, r]) => tile("region:" + k, rc(k), r.label.replace(/ \(.*\)/, ""), r.label.match(/\((.*)\)/) ? r.label.match(/\((.*)\)/)[1] : "", "var(--brand)")).join("");
+  const restChips = restR.map(([k, r]) => `<button type="button" class="chip" data-go="region:${k}">${esc(r.label)} <b>${rc(k)}</b></button>`).join("");
+  const monthTiles = Array.from({ length: 12 }, (_, i) => { const m = (t0.getMonth() + i) % 12; return { m, n: all.filter((e) => parse(e.date).getMonth() === m).length }; })
+    .map(({ m, n }) => `<button type="button" class="mtile${n ? "" : " empty-t"}" data-go="month:${m + 1}"><span>${MONTHS[m]}</span><b>${n}</b></button>`).join("");
+  const nNew = all.filter(isNew).length, nPl = (typeof PLANNED !== "undefined" ? PLANNED.length : 0);
+  const quick = `<button type="button" class="tile" data-go="board:" style="--c:${GROUP_COLORS.Brettsport}"><span class="tile-n">${all.filter(isBoard).length}</span><span class="tile-t">Brettsport</span><span class="tile-s">Surf, skate, snowboard</span></button>` +
+    tile("student:", all.filter((e) => e.student).length, "Student", "Studentarrangementer", "#2f8f5b") +
+    tile("big:", all.filter((e) => e.big).length, "Store arrangementer", "De største", "#b8710a") +
+    `<a class="tile" href="#nytt" style="--c:var(--new)"><span class="tile-n">${nNew}</span><span class="tile-t">Nytt</span><span class="tile-s">Lagt til siste uke</span></a>` +
+    `<a class="tile${nPl ? "" : " empty-t"}" href="#planlagt" style="--c:var(--accent)"><span class="tile-n">${nPl}</span><span class="tile-t">Planlagt</span><span class="tile-s">Dato ikke satt ennå</span></a>` +
+    `<a class="tile" href="#kalender" style="--c:#6b7b82"><span class="tile-n">▦</span><span class="tile-t">Kalender</span><span class="tile-s">Se måned for måned</span></a>`;
+  $app.innerHTML = `<div class="stack home">
+    <section class="home-top"><p class="eyebrow dark">Hele Norge · fokus på Bergen, Oslo, Stavanger og Trondheim</p><h1>Finn ditt neste sportsarrangement</h1>
+      <form id="homeSearch" class="home-search" role="search"><input type="search" id="hq" placeholder="Søk på navn eller sted" aria-label="Søk"><button class="btn" type="submit">Søk</button></form>
+      <p class="lead">${all.length} kommende arrangementer for deltakere fra 18 år.</p>${nextLine}</section>
+    <section class="hsec"><h2>Snarveier</h2><div class="tiles">${quick}</div></section>
+    <section class="hsec"><h2>Velg sport</h2><div class="tiles">${sportTiles}</div></section>
+    <section class="hsec"><h2>Velg område</h2><div class="tiles">${regionTiles}</div><p class="lbl" style="margin:14px 0 6px">Resten av Norge</p><div class="chips">${restChips}</div></section>
+    <section class="hsec"><h2>Velg måned</h2><div class="mtiles">${monthTiles}</div></section>
+    <p class="row" style="justify-content:center"><button type="button" class="btn ghost" data-go="all:">Se alle ${all.length} arrangementer</button></p></div>`;
+}
+
 /* ---------- Side: Søk ---------- */
 const GROUP_COLORS = { "Brettsport": "#5b3fc4", "Løp og terreng": "#0f5d70", "Sykkel": "#b8710a", "Vann": "#1479b8", "Luft": "#6f8aa0", "Vinter": "#3f86bf", "Ball og racket": "#2f8f5b", "Styrke og kamp": "#b2392f", "Motorsport": "#d9482a", "Dyr": "#8a5a2b", "Annet": "#6b7b82" };
 const F = { q: "", sport: "", group: "", region: "", month: "", size: "", past: false, board: false, student: false };
@@ -156,20 +192,28 @@ function viewSok() {
       <h1>Finn ditt neste sportsarrangement</h1>
       <p class="lead">Brettsport først, så motorsport, uvanlige idretter og studentarrangementer. Kun for deltakere fra 18 år.</p>
       <dl class="stats"><div><dt>${vis.length}</dt><dd>kommende</dd></div><div><dt>${vis.filter(isBoard).length}</dt><dd>brettsport</dd></div><div><dt>${vis.filter((e) => e.student).length}</dt><dd>student</dd></div><div><dt>${vis.filter(isNew).length}</dt><dd>nye denne uken</dd></div></dl></div></section>`;
+  const act = [];
+  if (F.group) act.push(["group", F.group]);
+  if (F.sport) act.push(["sport", F.sport]);
+  if (F.region) act.push(["region", (REGIONS[F.region] || {}).label || F.region]);
+  if (F.month) act.push(["month", MONTHS[Number(F.month) - 1]]);
+  if (F.board) act.push(["board", "Brettsport"]);
+  if (F.student) act.push(["student", "Student"]);
+  if (F.size) act.push(["size", F.size === "stor" ? "Store arrangementer" : "Mindre arrangementer"]);
+  const chipsAct = act.length ? `<div class="active">${act.map(([k, l]) => `<button type="button" class="fchip" data-clear="${k}" aria-label="Fjern filter ${esc(l)}">${esc(l)} ✕</button>`).join("")}<button type="button" class="fchip clear" data-go="all:">Nullstill</button></div>` : "";
   $app.innerHTML = `<div class="stack">
-    ${banner}
-    ${hero}
-    <section class="filters" aria-label="Filtre">
+    <div><a class="back" href="#hjem">← Forside</a><h1>Arrangementer</h1></div>
+    <div class="field"><label for="q">Søk</label><input type="search" id="q" placeholder="Navn eller sted, f.eks. Bergen" value="${esc(F.q)}"></div>
+    ${chipsAct}
+    <details class="filters more"><summary>Flere filter</summary>
       <div class="row">
-        <div class="field" style="flex:2 1 240px"><label for="q">Søk</label><input type="search" id="q" placeholder="Navn eller sted, f.eks. Bergen" value="${esc(F.q)}"></div>
         <div class="field"><label for="fRegion">Område</label><select id="fRegion"><option value="">Alle</option>${regionOpts}</select></div>
         <div class="field"><label for="fSportSel">Idrett</label><select id="fSportSel"><option value="">Alle idretter</option>${sportOptions(F.sport, F.group)}</select></div>
         <div class="field"><label for="fSize">Størrelse</label><select id="fSize"><option value="">Alle</option><option value="stor"${F.size === "stor" ? " selected" : ""}>Store arrangementer</option><option value="liten"${F.size === "liten" ? " selected" : ""}>Mindre arrangementer</option></select></div>
         <div class="field"><label for="fMonth">Måned</label><select id="fMonth"><option value="">Alle</option>${monthOpts}</select></div>
       </div>
-      <div class="chips groups" role="group" aria-label="Idrettsgrupper">${groupChips}</div>
-      <div class="row"><label class="switch"><input type="checkbox" id="onlyBoard"${F.board ? " checked" : ""}> Bare brettsport (surf, skate, snowboard)</label><label class="switch"><input type="checkbox" id="onlyStudent"${F.student ? " checked" : ""}> Bare studentarrangementer</label>${minorSwitch()}<label class="switch"><input type="checkbox" id="showPast"${F.past ? " checked" : ""}> Vis også tidligere i år</label></div>
-    </section>
+      <div class="row"><label class="switch"><input type="checkbox" id="onlyBoard"${F.board ? " checked" : ""}> Bare brettsport</label><label class="switch"><input type="checkbox" id="onlyStudent"${F.student ? " checked" : ""}> Bare studentarrangementer</label>${minorSwitch()}<label class="switch"><input type="checkbox" id="showPast"${F.past ? " checked" : ""}> Vis også tidligere i år</label></div>
+    </details>
     <section id="results" aria-live="polite"></section></div>`;
   updateResults();
 }
@@ -335,10 +379,10 @@ function viewPlanlagt() {
 }
 
 /* ---------- Ruting ---------- */
-const VIEWS = { sok: viewSok, idretter: viewIdretter, nytt: viewNytt, planlagt: viewPlanlagt, kalender: viewKalender, aret: viewAret, mine: viewMine };
+const VIEWS = { hjem: viewHjem, sok: viewSok, idretter: viewIdretter, nytt: viewNytt, planlagt: viewPlanlagt, kalender: viewKalender, aret: viewAret, mine: viewMine };
 function route() {
-  const h = (location.hash || "#sok").slice(1);
-  const name = VIEWS[h] ? h : "sok";
+  const h = (location.hash || "#hjem").slice(1);
+  const name = VIEWS[h] ? h : "hjem";
   document.querySelectorAll(".tabs a").forEach((a) => {
     if (a.dataset.tab === name) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
   });
@@ -359,8 +403,17 @@ function toast(msg) {
 
 /* ---------- Hendelser ---------- */
 document.addEventListener("click", (ev) => {
-  const el = ev.target.closest("[data-act],[data-sport],[data-cal],[data-day],[data-year],[data-group],[data-student]");
+  const el = ev.target.closest("[data-act],[data-sport],[data-cal],[data-day],[data-year],[data-group],[data-student],[data-go],[data-clear]");
   if (!el) return;
+  if (el.dataset.go !== undefined) {
+    const i = el.dataset.go.indexOf(":"), k = el.dataset.go.slice(0, i), v = el.dataset.go.slice(i + 1);
+    Object.assign(F, F0());
+    if (k === "group") F.group = v; else if (k === "region") F.region = v; else if (k === "month") F.month = v;
+    else if (k === "board") F.board = true; else if (k === "student") F.student = true; else if (k === "big") F.size = "stor";
+    if (location.hash !== "#sok") location.hash = "#sok"; else { viewSok(); window.scrollTo(0, 0); }
+    return;
+  }
+  if (el.dataset.clear !== undefined) { const c = el.dataset.clear; if (c === "board" || c === "student") F[c] = false; else F[c] = ""; if (c === "group") F.sport = ""; viewSok(); return; }
   if (el.dataset.group !== undefined) { F.group = el.dataset.group; F.sport = ""; F.student = false; if (location.hash !== "#sok") location.hash = "#sok"; else { viewSok(); window.scrollTo(0, 0); } return; }
   if (el.dataset.student !== undefined) { F.student = true; F.group = ""; F.sport = ""; if (location.hash !== "#sok") location.hash = "#sok"; else { viewSok(); window.scrollTo(0, 0); } return; }
   if (el.dataset.sport !== undefined) { F.sport = el.dataset.sport; viewSok(); return; }
@@ -406,6 +459,7 @@ document.addEventListener("change", (ev) => {
 });
 document.addEventListener("input", (ev) => { if (ev.target.id === "q") { F.q = ev.target.value; updateResults(); } });
 document.addEventListener("submit", (ev) => {
+  if (ev.target.id === "homeSearch") { ev.preventDefault(); Object.assign(F, F0()); F.q = document.getElementById("hq").value.trim(); if (location.hash !== "#sok") location.hash = "#sok"; else viewSok(); return; }
   if (ev.target.id !== "addForm") return;
   ev.preventDefault();
   const v = (id) => document.getElementById(id).value.trim();

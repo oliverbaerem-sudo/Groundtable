@@ -298,3 +298,25 @@ h1 { font-size: 2.1rem; } h2 { font-size: 1.4rem; } h3 { font-size: 1.1rem; }
 .card.planned .date b { color: var(--accent); }
 .card.planned .date i { font-weight: 600; color: var(--ink); }
 @media (max-width: 720px) { .tabs a { font-size: .66rem; } }
+
+/* ===== Forside med kategorier (v32) ===== */
+.home { gap: 28px; }
+.home-top h1 { font-size: 2rem; margin: 6px 0 12px; }
+.home-search { display: flex; gap: 8px; max-width: 520px; }
+.home-search input { flex: 1; }
+.home-top .lead { margin-top: 12px; }
+.next-line { margin: 6px 0 0; color: var(--ink-2); font-size: .94rem; }
+.hsec h2 { font-size: 1.15rem; margin-bottom: 12px; letter-spacing: -.01em; }
+.mtiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+.mtile { display: flex; justify-content: space-between; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; cursor: pointer; text-transform: capitalize; }
+.mtile:hover { border-color: var(--brand); }
+.mtile b { background: var(--main-tint); color: var(--brand-text); border-radius: 99px; padding: 0 8px; font-size: .82rem; }
+.mtile.empty-t { opacity: .5; }
+a.tile { text-decoration: none; color: inherit; }
+.back { color: var(--brand-text); text-decoration: none; font-size: .92rem; display: inline-block; margin-bottom: 6px; }
+.active { display: flex; flex-wrap: wrap; gap: 6px; }
+.fchip { border: 1px solid var(--brand); background: var(--main-tint); color: var(--brand-text); border-radius: 99px; padding: 5px 12px; cursor: pointer; font-weight: 500; }
+.fchip.clear { border-color: var(--line); background: transparent; color: var(--ink-2); }
+.filters.more summary { cursor: pointer; font-weight: 600; color: var(--brand-text); }
+.filters.more[open] summary { margin-bottom: 12px; }
+.tile-s { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
