@@ -152,18 +152,14 @@ function viewHjem() {
   const restChips = restR.map(([k, r]) => `<button type="button" class="chip" data-go="region:${k}">${esc(r.label)} <b>${rc(k)}</b></button>`).join("");
   const monthTiles = Array.from({ length: 12 }, (_, i) => { const m = (t0.getMonth() + i) % 12; return { m, n: all.filter((e) => parse(e.date).getMonth() === m).length }; })
     .map(({ m, n }) => `<button type="button" class="mtile${n ? "" : " empty-t"}" data-go="month:${m + 1}"><span>${MONTHS[m]}</span><b>${n}</b></button>`).join("");
-  const nNew = all.filter(isNew).length, nPl = (typeof PLANNED !== "undefined" ? PLANNED.length : 0);
-  const quick = `<button type="button" class="tile" data-go="board:" style="--c:${GROUP_COLORS.Brettsport}"><span class="tile-n">${all.filter(isBoard).length}</span><span class="tile-t">Brettsport</span><span class="tile-s">Surf, skate, snowboard</span></button>` +
-    tile("student:", all.filter((e) => e.student).length, "Student", "Studentarrangementer", "#2f8f5b") +
-    tile("big:", all.filter((e) => e.big).length, "Store arrangementer", "De største", "#b8710a") +
-    `<a class="tile" href="#nytt" style="--c:var(--new)"><span class="tile-n">${nNew}</span><span class="tile-t">Nytt</span><span class="tile-s">Lagt til siste uke</span></a>` +
-    `<a class="tile${nPl ? "" : " empty-t"}" href="#planlagt" style="--c:var(--accent)"><span class="tile-n">${nPl}</span><span class="tile-t">Planlagt</span><span class="tile-s">Dato ikke satt ennå</span></a>` +
-    `<a class="tile" href="#kalender" style="--c:#6b7b82"><span class="tile-n">▦</span><span class="tile-t">Kalender</span><span class="tile-s">Se måned for måned</span></a>`;
+  const nNew = all.filter(isNew).length;
   $app.innerHTML = `<div class="stack home">
-    <section class="home-top"><p class="eyebrow dark">Hele Norge · fokus på Bergen, Oslo, Stavanger og Trondheim</p><h1>Finn ditt neste sportsarrangement</h1>
-      <form id="homeSearch" class="home-search" role="search"><input type="search" id="hq" placeholder="Søk på navn eller sted" aria-label="Søk"><button class="btn" type="submit">Søk</button></form>
-      <p class="lead">${all.length} kommende arrangementer for deltakere fra 18 år.</p>${nextLine}</section>
-    <section class="hsec"><h2>Snarveier</h2><div class="tiles">${quick}</div></section>
+    <section class="hero"><div class="hero-in"><p class="eyebrow">Hele Norge · fokus på Bergen, Oslo, Stavanger og Trondheim</p>
+      <h1>Velkommen til Groundtable</h1>
+      <p class="lead">Finn ditt neste sportsarrangement. Brettsport først, så motorsport, uvanlige idretter og studentarrangementer. Kun for deltakere fra 18 år.</p>
+      <form id="homeSearch" class="home-search" role="search"><input type="search" id="hq" placeholder="Søk på navn eller sted" aria-label="Søk"><button class="btn accent" type="submit">Søk</button></form>
+      <dl class="stats"><div><dt>${all.length}</dt><dd>kommende</dd></div><div><dt>${all.filter(isBoard).length}</dt><dd>brettsport</dd></div><div><dt>${all.filter((e) => e.student).length}</dt><dd>student</dd></div><div><dt>${nNew}</dt><dd>nye denne uken</dd></div></dl>
+      ${nextLine ? nextLine.replace('class="next-line"', 'class="next-line hero-next"') : ""}</div></section>
     <section class="hsec"><h2>Velg sport</h2><div class="tiles">${sportTiles}</div></section>
     <section class="hsec"><h2>Velg område</h2><div class="tiles">${regionTiles}</div><p class="lbl" style="margin:14px 0 6px">Resten av Norge</p><div class="chips">${restChips}</div></section>
     <section class="hsec"><h2>Velg måned</h2><div class="mtiles">${monthTiles}</div></section>

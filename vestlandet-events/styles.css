@@ -320,3 +320,10 @@ a.tile { text-decoration: none; color: inherit; }
 .filters.more summary { cursor: pointer; font-weight: 600; color: var(--brand-text); }
 .filters.more[open] summary { margin-bottom: 12px; }
 .tile-s { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Velkomstbanner på forsiden (v33) */
+.home-search { margin: 18px 0 0; }
+.home .hero h1 { font-size: 2.3rem; margin: 6px 0 10px; }
+.hero-next { color: rgba(255,255,255,.86); margin: 16px 0 0; font-size: .92rem; }
+.hero-next b { color: #fff; }
+@media (max-width: 720px) { .home .hero h1 { font-size: 1.8rem; } }
