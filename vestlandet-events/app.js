@@ -43,7 +43,7 @@ const save = () => { try { localStorage.setItem("vl-store", JSON.stringify(store
 function seedEvent(base, y) {
   const s = base.on && base.on[y] ? Object.assign({}, base, base.on[y]) : base;
   return { key: `${s.id}@${y}`, id: s.id, name: s.name, date: iso(y, s.m, s.d), end: s.end ? iso2(y, s.m, s.end) : "",
-    place: s.place, region: s.region, sport: s.sport, contact: s.contact || null, big: !!s.big, board: !!s.board, student: !!s.student, official: s.official || "", url: s.url || "", info: s.info || "", approx: true, fromSearch: !!s.year, custom: false };
+    place: s.place, region: s.region, sport: s.sport, contact: s.contact || null, big: !!s.big, board: !!s.board, student: !!s.student, added: s.added || "", official: s.official || "", url: s.url || "", info: s.info || "", approx: true, fromSearch: !!s.year, custom: false };
 }
 function customEvent(c) { return { key: c.id, id: c.id, name: c.name, date: c.date, end: c.end || "", place: c.place, region: c.region,
   sport: c.sport, link: c.link, notes: c.notes, approx: false, custom: true, status: c.status }; }
@@ -63,6 +63,16 @@ function upcoming(withPast) {
   return [...eventsForYear(y), ...eventsForYear(y + 1)].filter((e) => withPast ? e.date >= y + "-01-01" : endOf(e) >= t).sort(byDate);
 }
 const isPast = (e) => endOf(e) < todayIso();
+const isoOf = (d) => iso(d.getFullYear(), d.getMonth() + 1, d.getDate());
+const daysAgoIso = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return isoOf(d); };
+const isNew = (e) => !!e.added && e.added >= daysAgoIso(7);
+const mondayOf = (s) => { const d = parse(s); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; };
+const isoWeek = (d) => { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7)); const y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1)); return Math.ceil(((t - y0) / 86400000 + 1) / 7); };
+function recentEvents() {
+  const y = new Date().getFullYear(), map = new Map();
+  [...eventsForYear(y), ...eventsForYear(y + 1)].forEach((e) => { if (e.added && endOf(e) >= todayIso()) map.set(e.key, e); });
+  return [...map.values()];
+}
 function myEvents() {
   const out = store.custom.map(customEvent);
   for (const key of Object.keys(store.joined)) {
@@ -101,6 +111,7 @@ function card(e, ctx) {
     ${e.notes ? `<p class="meta">${esc(e.notes)}</p>` : ""}
     ${contactHtml(e)}
     <div class="tags">
+      ${isNew(e) ? `<span class="tag new">Ny</span>` : ""}
       ${isBoard(e) ? `<span class="tag board">Brettsport</span>` : ""}
       ${e.student ? `<span class="tag ok">Student</span>` : ""}
       ${main ? "" : `<span class="tag minor">Mindre viktig</span>`}
@@ -131,8 +142,13 @@ function viewSok() {
   }
   const regionOpts = Object.entries(REGIONS).map(([k, r]) => `<option value="${k}"${F.region === k ? " selected" : ""}>${esc(r.label)}${r.main ? "" : " (mindre viktig)"}</option>`).join("");
   const monthOpts = MONTHS.map((m, i) => `<option value="${i + 1}"${F.month == i + 1 ? " selected" : ""}>${m}</option>`).join("");
+  const vis = visible(all);
+  const banner = `<section class="hero"><div class="hero-in"><p class="eyebrow">Trondheim · Vestlandet · Kristiansand</p>
+      <h1>Finn ditt neste sportsarrangement</h1>
+      <p class="lead">Brettsport først, så motorsport, uvanlige idretter og studentarrangementer. Kun for deltakere fra 18 år.</p>
+      <dl class="stats"><div><dt>${vis.length}</dt><dd>kommende</dd></div><div><dt>${vis.filter(isBoard).length}</dt><dd>brettsport</dd></div><div><dt>${vis.filter((e) => e.student).length}</dt><dd>student</dd></div><div><dt>${vis.filter(isNew).length}</dt><dd>nye denne uken</dd></div></dl></div></section>`;
   $app.innerHTML = `<div class="stack">
-    <div><h1>Finn sportsarrangementer</h1><p class="lead">Brettsport først: surf, skate og snowboard. Store og små arrangementer for deltakere fra 18 år, fra Trondheim langs kysten ned til Kristiansand. Resten av landet vises dempet.</p></div>
+    ${banner}
     ${hero}
     <section class="filters" aria-label="Filtre">
       <div class="row">
@@ -236,8 +252,24 @@ function viewMine() {
     ${past.length ? `<section><h2 style="margin-bottom:10px">Tidligere</h2>${listHtml(past, "mine")}</section>` : ""}</div>`;
 }
 
+/* ---------- Side: Nytt (nylig lagt til, gruppert per uke) ---------- */
+function viewNytt() {
+  const evs = visible(recentEvents()), weeks = {};
+  evs.forEach((e) => { const k = isoOf(mondayOf(e.added)); (weeks[k] = weeks[k] || []).push(e); });
+  const keys = Object.keys(weeks).sort().reverse();
+  const html = keys.map((k, i) => {
+    const mon = parse(k), sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+    const list = weeks[k].sort(byDate), n = list.length;
+    const range = `${mon.getDate()}. ${MON_S[mon.getMonth()]} – ${sun.getDate()}. ${MON_S[sun.getMonth()]}`;
+    return `<details class="week"${i === 0 ? " open" : ""}><summary><span class="wk">Uke ${isoWeek(mon)}</span><span class="wk-range">${range}</span><span class="wk-n">${n} ${n === 1 ? "nytt" : "nye"}</span></summary><div class="week-body">${listHtml(list, "nytt")}</div></details>`;
+  }).join("");
+  $app.innerHTML = `<div class="stack"><div><p class="eyebrow dark">Nylig lagt til</p><h1>Nytt i kalenderen</h1><p class="lead">Arrangementer vi har lagt til, samlet per uke. Den nyeste uken ligger øverst. Arrangementer lagt til før 10. november vises ikke her.</p></div>
+    <div class="row" style="justify-content:flex-end">${minorSwitch()}</div>
+    ${html || `<div class="empty">Ingen nye arrangementer enda. Nye arrangementer dukker opp her etter hvert.</div>`}</div>`;
+}
+
 /* ---------- Ruting ---------- */
-const VIEWS = { sok: viewSok, kalender: viewKalender, aret: viewAret, mine: viewMine };
+const VIEWS = { sok: viewSok, nytt: viewNytt, kalender: viewKalender, aret: viewAret, mine: viewMine };
 function route() {
   const h = (location.hash || "#sok").slice(1);
   const name = VIEWS[h] ? h : "sok";
@@ -251,6 +283,8 @@ function rerender() { const y = window.scrollY; route(); window.scrollTo(0, y); 
 function updateCount() {
   const n = myEvents().filter((e) => endOf(e) >= todayIso()).length, el = document.getElementById("mineCount");
   el.textContent = n; el.hidden = !n;
+  const nn = recentEvents().filter(isNew).length, ne = document.getElementById("newCount");
+  if (ne) { ne.textContent = nn; ne.hidden = !nn; }
 }
 function toast(msg) {
   const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.textContent = msg;
