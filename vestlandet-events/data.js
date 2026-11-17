@@ -171,5 +171,6 @@ const SEED = [
   // --- Studentarrangementer (student: true) ---
   { id: "studentlekene-trondheim-2027", added: "2026-11-17", student: true, year: 2027, url: "https://www.sltrondheim.no/", info: "https://www.studentidrett.no/arrangementer/studentlekene-trondheim-2027", name: "Studentlekene Trondheim (Student-NM og Studentcup)", m: 2, d: 24, end: 27, place: "Trondheim", region: "trondelag", sport: "Annet", big: true },
   { id: "isfit-2027", added: "2026-11-17", student: true, year: 2027, url: "https://www.isfit.org/", name: "ISFiT, internasjonal studentfestival", m: 2, d: 11, end: 21, place: "Trondheim", region: "trondelag", sport: "Annet", big: true },
+  { id: "skiskyting-vc-oslo-2027", added: "2026-11-17", year: 2027, info: "https://www.visitoslo.com/whats-on/biathlon-world-cup", name: "Skiskyting verdenscup, Holmenkollen", m: 3, d: 16, end: 21, place: "Oslo", region: "ostlandet", sport: "Skiskyting", big: true },
   { id: "summit2-senja", added: "2026-11-17", year: 2027, url: "https://www.skiclassics.com/livecenter/summit-2-senja/", name: "Grand Finale Summit 2 Senja (60 km)", m: 4, d: 4, place: "Senja", region: "nord", sport: "Langrenn" },
 ];
