@@ -1,2 +1,4 @@
 [build]
     publish = "vestlandet-events"
+    # Bygg kun hovedgreina. Greina «funn» (daglig innsamling) skal aldri publiseres.
+    ignore = "test \"$BRANCH\" != \"main\""
