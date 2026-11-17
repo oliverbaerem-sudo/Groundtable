@@ -18,7 +18,7 @@ const SPORT_GROUPS = {
   "Sykkel": ["Sykling", "Terrengsykling"],
   "Vann": ["Svømming", "Roing", "Padling", "Seiling", "Dykking", "Triatlon"],
   "Luft": ["Fallskjermhopping", "Paragliding", "Seilfly"],
-  "Vinter": ["Langrenn", "Alpint", "Freeski og freeride", "Skiskyting", "Skihopp", "Skøyter", "Ishockey", "Curling"],
+  "Vinter": ["Langrenn", "Alpint", "Freeski og freeride", "Skiskyting", "Skihopp", "Skøyter", "Ishockey", "Curling", "Bob og skeleton"],
   "Ball og racket": ["Fotball", "Håndball", "Basketball", "Volleyball", "Sandvolleyball", "Padel og tennis", "Badminton", "Golf", "Bowling", "Bandy"],
   "Styrke og kamp": ["Crossfit og Hyrox", "Styrkeløft", "Kampsport", "Klatring", "Gymnastikk", "Dans og cheer"],
   "Motorsport": ["Motorsport", "Rallycross og crosskart", "Racing og roadracing", "Motocross og enduro"],
@@ -178,9 +178,15 @@ const SEED = [
   { id: "navy-race-trondheim-2027", added: "2026-11-17", year: 2027, info: "https://gotrail.run/no/event/navy-race-trondheim", name: "Navy Race Trondheim (8 km, 30 hindre)", m: 5, d: 22, place: "Ladeområdet, Trondheim", region: "trondelag", sport: "Hinderløp" },
   { id: "navy-race-oslo-2027", added: "2026-11-17", year: 2027, info: "https://gotrail.run/no/event/navy-race-ocr-oslo", name: "Navy Race OCR Oslo (5 km)", m: 6, d: 5, place: "Akershus festning, Oslo", region: "ostlandet", sport: "Hinderløp" },
   { id: "trolljegerproven-2027", added: "2026-11-17", year: 2027, url: "https://trolljeger.no/", info: "https://www.visitnorway.com/events//trolljegerproven-sandnes/512533/", name: "Trolljegerprøven (8 km, 30+ hindre)", m: 6, d: 12, place: "Dale, Sandnes", region: "rogaland", sport: "Hinderløp" },
+  // --- Gjenopprettet fra søk som ikke ble publisert (2026-11-17) ---
+  { id: "holmenkollstafetten-2027", added: "2026-11-17", year: 2027, url: "https://holmenkollstafetten.no/", info: "https://running.life/en/event/holmenkollstafetten", name: "Holmenkollstafetten", m: 5, d: 8, place: "Oslo", region: "ostlandet", sport: "Løping", big: true },
+  { id: "ecotrail-oslo-2027", added: "2026-11-17", year: 2027, url: "https://oslo.ecotrail.com/", info: "https://gotrail.run/no/event/ecotrail-oslo", name: "EcoTrail Oslo (10–80 km)", m: 5, d: 29, place: "Oslo, mål på Huk", region: "ostlandet", sport: "Trailløp", big: true },
+  { id: "ibsf-vm-bob-skeleton-2027", added: "2026-11-17", year: 2027, url: "https://www.olympiaparken.no/en/arrangementer/vm2027", name: "VM bob og skeleton (IBSF)", m: 2, d: 15, end: 28, place: "Lillehammer", region: "innlandet", sport: "Bob og skeleton", big: true },
+  { id: "masters-world-cup-langrenn-tromso-2027", added: "2026-11-17", year: 2027, url: "https://msm.no/en/masters-world-cup/", name: "Masters World Cup langrenn", m: 2, d: 26, end: 32, place: "Tromsø", region: "nord", sport: "Langrenn", big: true },
 ];
 
 // Planlagt, men dato ikke fastsatt. Vises i fanen «Planlagt». Kun arrangementer som arrangøren selv har annonsert uten eksakt dato.
 // Format: { id, added: "YYYY-MM-DD", name, place, region, sport, when: "Sommer 2027" (ordrett fra kilden, valgfri), note, url/info, student, board, big, contact }
 const PLANNED = [
+  { id: "tour-of-norway-2027", added: "2026-11-17", name: "Tour of Norway", place: "Rogaland m.fl.", region: "rogaland", sport: "Sykling", when: "2027, ikke bekreftet", note: "Arrangøren jobber for comeback, men finansieringen er ikke avklart.", info: "https://veloracycling.com/news/tour-of-norway-funding-2027", big: true },
 ];
