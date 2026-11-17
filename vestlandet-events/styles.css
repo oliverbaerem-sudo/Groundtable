@@ -358,3 +358,12 @@ a.tile { text-decoration: none; color: inherit; }
 .tile-ic { font-size: 1.6rem; line-height: 1; width: 2.6rem; height: 2.6rem; display: grid; place-items: center; border-radius: 12px; background: color-mix(in srgb, var(--c, var(--brand)) 14%, var(--surface)); margin-bottom: 4px; }
 .mstrip { display: flex; gap: 6px; flex-wrap: wrap; }
 .mstrip .chip { text-transform: capitalize; padding: 5px 12px; }
+
+/* Fargekodet kalender (v41) */
+.pill { background: var(--c, var(--brand)); color: #fff; }
+.pill.minor { background: color-mix(in srgb, var(--c, var(--brand)) 12%, var(--surface)); color: var(--ink-2); border: 1px dashed var(--c, var(--ink-2)); }
+.pill.mine { background: var(--c, var(--brand)); box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent); }
+.pill.minor.mine { color: var(--ink); }
+.legend .l-grp::before { background: var(--c); border: 0; }
+.legend .l-mine::before { background: transparent; box-shadow: 0 0 0 2px var(--accent); }
+.legend .l-minor::before { background: var(--muted-bg); border: 1px dashed var(--ink-2); }
