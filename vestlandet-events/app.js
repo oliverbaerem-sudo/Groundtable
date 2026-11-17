@@ -135,7 +135,7 @@ const visible = (evs) => store.showSmall ? evs : evs.filter((e) => !isMuted(e));
 
 const sportOptions = (sel, group) => Object.entries(SPORT_GROUPS).filter(([g]) => !group || g === group).map(([g, list]) => `<optgroup label="${esc(g)}">${list.map((s) => `<option${s === sel ? " selected" : ""}>${esc(s)}</option>`).join("")}</optgroup>`).join("");
 /* ---------- Side: Søk ---------- */
-const GROUP_COLORS = { "Brettsport": "#5b3fc4", "Løp og terreng": "#0f5d70", "Sykkel": "#b8710a", "Vann": "#1479b8", "Luft": "#6f8aa0", "Vinter": "#3f86bf", "Ball og racket": "#2f8f5b", "Styrke og kamp": "#b2392f", "Motor og dyr": "#d9482a", "Annet": "#6b7b82" };
+const GROUP_COLORS = { "Brettsport": "#5b3fc4", "Løp og terreng": "#0f5d70", "Sykkel": "#b8710a", "Vann": "#1479b8", "Luft": "#6f8aa0", "Vinter": "#3f86bf", "Ball og racket": "#2f8f5b", "Styrke og kamp": "#b2392f", "Motorsport": "#d9482a", "Dyr": "#8a5a2b", "Annet": "#6b7b82" };
 const F = { q: "", sport: "", group: "", region: "", month: "", size: "", past: false, board: false, student: false };
 function viewSok() {
   const all = upcoming(false);

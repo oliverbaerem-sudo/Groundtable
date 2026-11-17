@@ -21,8 +21,9 @@ const SPORT_GROUPS = {
   "Vinter": ["Langrenn", "Alpint", "Freeski og freeride", "Skiskyting", "Skihopp", "Skøyter", "Ishockey", "Curling"],
   "Ball og racket": ["Fotball", "Håndball", "Basketball", "Volleyball", "Sandvolleyball", "Padel og tennis", "Badminton", "Golf", "Bowling", "Bandy"],
   "Styrke og kamp": ["Crossfit og Hyrox", "Styrkeløft", "Kampsport", "Klatring", "Gymnastikk", "Dans og cheer"],
-  "Motor og dyr": ["Motorsport", "Rallycross og crosskart", "Racing og roadracing", "Motocross og enduro", "Ridning", "Skyting", "Bueskyting"],
-  "Annet": ["Ekstremsport", "Annet"],
+  "Motorsport": ["Motorsport", "Rallycross og crosskart", "Racing og roadracing", "Motocross og enduro"],
+  "Dyr": ["Ridning"],
+  "Annet": ["Ekstremsport", "Skyting", "Bueskyting", "Annet"],
 };
 const SPORTS = Object.values(SPORT_GROUPS).flat();
 // Brettsport er viktigst: vises alltid i full farge, uansett sted, og kan filtreres ut.
