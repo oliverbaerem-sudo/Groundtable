@@ -141,14 +141,19 @@ const homeTile = (go, n, title, sub, color) => `<button type="button" class="til
 function viewHjem() {
   const all = visible(upcoming(false));
   const nNew = all.filter(isNew).length, nb = all.find(isBoard);
-  const nextLine = nb ? `<p class="next-line hero-next"><b>Neste brettarrangement:</b> ${esc(nb.name)}, ${esc(nb.place)} · ${parse(nb.date).getDate()}. ${MONTHS[parse(nb.date).getMonth()]}</p>` : "";
+  const days = nb ? Math.max(0, Math.round((parse(nb.date) - parse(todayIso())) / 86400000)) : 0;
+  const nextLine = nb ? `<aside class="board-next" aria-label="Neste brettarrangement"><p class="bn-eyebrow">Neste brettarrangement</p>
+      <div class="bn-days"><b>${days}</b><span>${days === 1 ? "dag" : "dager"}</span></div>
+      <h2>${esc(nb.name)}</h2>
+      <p class="bn-meta">${esc(nb.place)} · ${parse(nb.date).getDate()}. ${MONTHS[parse(nb.date).getMonth()]} ${parse(nb.date).getFullYear()}</p>
+      ${(nb.url || nb.info) ? `<a class="btn sm accent" href="${esc(nb.url || nb.info)}" target="_blank" rel="noopener">Gå til nettside ↗</a>` : ""}</aside>` : "";
   const box = (href, title, sub, color) => `<a class="catbox" href="${href}" style="--c:${color}"><span class="cb-t">${title}</span><span class="cb-s">${sub}</span><span class="cb-go" aria-hidden="true">→</span></a>`;
   $app.innerHTML = `<div class="stack home">
-    <section class="hero"><div class="hero-in"><p class="eyebrow">Hele Norge · fokus på Bergen, Oslo, Stavanger og Trondheim</p>
+    <section class="hero"><div class="hero-in hero-grid"><div class="hero-main"><p class="eyebrow">Hele Norge · fokus på Bergen, Oslo, Stavanger og Trondheim</p>
       <h1>Velkommen til Groundtable</h1>
-      <p class="lead">Finn ditt neste sportsarrangement. Brettsport først, så motorsport, uvanlige idretter og studentarrangementer. Kun for deltakere fra 18 år.</p>
+      <p class="lead lead-board"><b>Brettsport først:</b> surf, skate og snowboard har alltid førsteplassen. Deretter motorsport, uvanlige idretter og studentarrangementer fra hele Norge. Kun for deltakere fra 18 år.</p>
       <form id="homeSearch" class="home-search" role="search"><input type="search" id="hq" placeholder="Søk på navn eller sted" aria-label="Søk"><button class="btn accent" type="submit">Søk</button></form>
-      <dl class="stats"><div><dt>${all.length}</dt><dd>kommende</dd></div><div><dt>${all.filter(isBoard).length}</dt><dd>brettsport</dd></div><div><dt>${all.filter((e) => e.student).length}</dt><dd>student</dd></div><div><dt>${nNew}</dt><dd>nye denne uken</dd></div></dl>
+      <dl class="stats"><div><dt>${all.length}</dt><dd>kommende</dd></div><div><dt>${all.filter(isBoard).length}</dt><dd>brettsport</dd></div><div><dt>${all.filter((e) => e.student).length}</dt><dd>student</dd></div><div><dt>${nNew}</dt><dd>nye denne uken</dd></div></dl></div>
       ${nextLine}</div></section>
     <section class="cats" aria-label="Utforsk">
       ${box("#sport", "Sport", `${Object.keys(SPORT_GROUPS).length} grupper, fra brettsport til motorsport`, "#5b3fc4")}
