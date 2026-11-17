@@ -309,8 +309,33 @@ function viewNytt() {
     ${html || `<div class="empty">Ingen nye arrangementer enda. Nye arrangementer dukker opp her etter hvert.</div>`}</div>`;
 }
 
+
+/* ---------- Planlagt, dato ikke fastsatt ---------- */
+function plannedCard(p) {
+  const r = REGIONS[p.region], ev = { board: p.board, sport: p.sport, region: p.region, big: p.big, place: p.place };
+  const link = p.url || p.info;
+  const q = encodeURIComponent(p.name + " dato");
+  const c = contactFor({ key: "pl:" + p.id, contact: p.contact });
+  const contact = c ? `<p class="contact"><span class="lbl">Kontakt</span> ${[c.name || c.org, c.email && okEmail(c.email) ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : "", c.phone && okPhone(c.phone) ? esc(c.phone) : ""].filter(Boolean).join(" · ")}</p>` : "";
+  return `<li class="card planned${isBoard(ev) ? " board" : ""}"><div class="date"><b>?</b><span>dato</span><i>${esc(p.when || "ikke satt")}</i></div><div style="min-width:0">
+    <h3>${esc(p.name)}</h3>
+    <p class="meta">${esc(p.place || "Sted ikke oppgitt")} · ${esc(r ? r.label : "")} · ${esc(p.sport)}</p>
+    ${p.note ? `<p class="meta">${esc(p.note)}</p>` : ""}${contact}
+    <div class="tags"><span class="tag warn">Dato ikke fastsatt</span>${p.added && p.added >= daysAgoIso(7) ? `<span class="tag new">Ny</span>` : ""}${isBoard(ev) ? `<span class="tag board">Brettsport</span>` : ""}${p.student ? `<span class="tag ok">Student</span>` : ""}</div>
+    <div class="actions">${link ? `<a class="btn sm" href="${esc(link)}" target="_blank" rel="noopener">Gå til nettside ↗</a>` : ""}<a class="btn sm ghost" href="https://www.google.com/search?q=${q}" target="_blank" rel="noopener">Sjekk om dato er satt</a></div></div></li>`;
+}
+function viewPlanlagt() {
+  const all = (typeof PLANNED !== "undefined" ? PLANNED : []).slice().sort((a, b) => (b.added || "").localeCompare(a.added || "") || a.name.localeCompare(b.name, "nb"));
+  const groups = Object.entries(SPORT_GROUPS).map(([g, list]) => {
+    const ge = all.filter((p) => list.includes(p.sport)); if (!ge.length) return "";
+    return `<details class="grp" style="--c:${GROUP_COLORS[g] || "var(--brand)"}" open><summary><span class="g-t">${esc(g)}</span><span class="g-s"></span><span class="g-n">${ge.length}</span></summary><div class="grp-body"><ul class="list">${ge.map(plannedCard).join("")}</ul></div></details>`;
+  }).join("");
+  $app.innerHTML = `<div class="stack"><div><p class="eyebrow dark">Under planlegging</p><h1>Planlagt, dato kommer</h1><p class="lead">Arrangementer som er annonsert, men der arrangøren ikke har offentliggjort en eksakt dato. Vi gjetter aldri datoer. Når datoen er satt, flyttes arrangementet til den vanlige kalenderen.</p></div>
+    ${groups || `<div class="empty">Ingen planlagte arrangementer uten dato akkurat nå.</div>`}</div>`;
+}
+
 /* ---------- Ruting ---------- */
-const VIEWS = { sok: viewSok, idretter: viewIdretter, nytt: viewNytt, kalender: viewKalender, aret: viewAret, mine: viewMine };
+const VIEWS = { sok: viewSok, idretter: viewIdretter, nytt: viewNytt, planlagt: viewPlanlagt, kalender: viewKalender, aret: viewAret, mine: viewMine };
 function route() {
   const h = (location.hash || "#sok").slice(1);
   const name = VIEWS[h] ? h : "sok";
