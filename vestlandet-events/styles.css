@@ -353,3 +353,8 @@ a.tile { text-decoration: none; color: inherit; }
 .home .hero h1 { color: #fff; font-size: 2.55rem; letter-spacing: -.025em; margin: 0 0 6px; }
 .hero-sub { margin: 0 0 14px; font: 600 1.45rem/1.2 var(--font-d); letter-spacing: -.01em; color: rgba(255,255,255,.62); }
 @media (max-width: 720px) { .home .hero h1 { font-size: 2.2rem; } .hero-sub { font-size: 1.2rem; } }
+
+/* Symboler og månedsstripe (v40) */
+.tile-ic { font-size: 1.6rem; line-height: 1; width: 2.6rem; height: 2.6rem; display: grid; place-items: center; border-radius: 12px; background: color-mix(in srgb, var(--c, var(--brand)) 14%, var(--surface)); margin-bottom: 4px; }
+.mstrip { display: flex; gap: 6px; flex-wrap: wrap; }
+.mstrip .chip { text-transform: capitalize; padding: 5px 12px; }

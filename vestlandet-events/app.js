@@ -137,7 +137,7 @@ const sportOptions = (sel, group) => Object.entries(SPORT_GROUPS).filter(([g]) =
 
 /* ---------- Side: Forside (tre kategoribokser) ---------- */
 const F0 = () => ({ q: "", sport: "", group: "", region: "", month: "", size: "", past: false, board: false, student: false });
-const homeTile = (go, n, title, sub, color) => `<button type="button" class="tile${n ? "" : " empty-t"}" data-go="${esc(go)}" style="--c:${color || "var(--brand)"}"><span class="tile-n">${n}</span><span class="tile-t">${esc(title)}</span>${sub ? `<span class="tile-s">${esc(sub)}</span>` : ""}</button>`;
+const homeTile = (go, n, title, sub, color, icon) => `<button type="button" class="tile${n ? "" : " empty-t"}" data-go="${esc(go)}" style="--c:${color || "var(--brand)"}">${icon ? `<span class="tile-ic" aria-hidden="true">${icon}</span>` : ""}<span class="tile-n">${n}</span><span class="tile-t">${esc(title)}</span>${sub ? `<span class="tile-s">${esc(sub)}</span>` : ""}</button>`;
 function viewHjem() {
   const all = visible(upcoming(false));
   const nNew = all.filter(isNew).length, nb = all.find(isBoard);
@@ -158,7 +158,7 @@ function viewHjem() {
     <section class="cats" aria-label="Utforsk">
       ${box("#sport", "Sport", `${Object.keys(SPORT_GROUPS).length} grupper, fra brettsport til motorsport`, "#5b3fc4")}
       ${box("#omrade", "Område", "Bergen, Oslo, Stavanger, Trondheim og resten av Norge", "#0f5d70")}
-      ${box("#maned", "Måned", "Se hva som skjer måned for måned", "#b8710a")}
+      ${box("#kalender", "Måned", "Kalender og liste, måned for måned", "#b8710a")}
     </section>
     <p class="row" style="justify-content:center"><button type="button" class="btn ghost" data-go="all:">Se alle ${all.length} arrangementer</button></p></div>`;
 }
@@ -169,7 +169,7 @@ function viewKategori(kind) {
     title = "Velg sport";
     body = `<div class="tiles">${Object.entries(SPORT_GROUPS).map(([g, list]) => {
       const ge = all.filter((e) => list.includes(e.sport)), have = [...new Set(ge.map((e) => e.sport))];
-      return homeTile("group:" + g, ge.length, g, (have.length ? have : list).slice(0, 3).join(", "), GROUP_COLORS[g]);
+      return homeTile("group:" + g, ge.length, g, (have.length ? have : list).slice(0, 3).join(", "), GROUP_COLORS[g], GROUP_ICONS[g]);
     }).join("")}</div>`;
   } else if (kind === "omrade") {
     title = "Velg område";
@@ -187,6 +187,7 @@ function viewKategori(kind) {
 const viewSport = () => viewKategori("sport"), viewOmrade = () => viewKategori("omrade"), viewManed = () => viewKategori("maned");
 
 /* ---------- Side: Søk ---------- */
+const GROUP_ICONS = { "Brettsport": "🏄", "Løp og terreng": "🏃", "Sykkel": "🚴", "Vann": "🏊", "Luft": "🪂", "Vinter": "⛷️", "Ball og racket": "⚽", "Styrke og kamp": "🥊", "Motorsport": "🏎️", "Dyr": "🐎", "Annet": "⭐" };
 const GROUP_COLORS = { "Brettsport": "#5b3fc4", "Løp og terreng": "#0f5d70", "Sykkel": "#b8710a", "Vann": "#1479b8", "Luft": "#6f8aa0", "Vinter": "#3f86bf", "Ball og racket": "#2f8f5b", "Styrke og kamp": "#b2392f", "Motorsport": "#d9482a", "Dyr": "#8a5a2b", "Annet": "#6b7b82" };
 const F = { q: "", sport: "", group: "", region: "", month: "", size: "", past: false, board: false, student: false };
 function viewSok() {
@@ -287,7 +288,9 @@ function viewKalender() {
   const selList = CAL.sel ? onDay(CAL.sel) : null;
   const isCurrent = CAL.y === now0.getFullYear() && CAL.m === now0.getMonth();
   $app.innerHTML = `<div class="stack">
-    <div><h1>${isCurrent ? "Denne måneden" : "Kalender"}</h1></div>
+    <div><a class="back" href="#hjem">← Forside</a><h1>${isCurrent ? "Denne måneden" : "Kalender"}</h1></div>
+    <div class="mstrip" role="group" aria-label="Hopp til måned">${Array.from({ length: 12 }, (_, i) => { const d = new Date(now0.getFullYear(), now0.getMonth() + i, 1); const on = d.getFullYear() === CAL.y && d.getMonth() === CAL.m;
+      return `<button type="button" class="chip" data-calto="${d.getFullYear()}-${d.getMonth()}" aria-pressed="${on}">${MON_S[d.getMonth()]}${d.getMonth() === 0 ? " " + String(d.getFullYear()).slice(2) : ""}</button>`; }).join("")}</div>
     <div class="cal-head"><button class="btn ghost" data-cal="-1" aria-label="Forrige måned">←</button>
       <h2>${MONTHS[CAL.m]} ${CAL.y}</h2><button class="btn ghost" data-cal="1" aria-label="Neste måned">→</button></div>
     <div class="row" style="justify-content:space-between">${minorSwitch()}${isCurrent ? "" : `<button class="btn sm ghost" data-cal="0">Til inneværende måned</button>`}</div>
@@ -419,8 +422,9 @@ function toast(msg) {
 
 /* ---------- Hendelser ---------- */
 document.addEventListener("click", (ev) => {
-  const el = ev.target.closest("[data-act],[data-sport],[data-cal],[data-day],[data-year],[data-group],[data-student],[data-go],[data-clear]");
+  const el = ev.target.closest("[data-calto],[data-act],[data-sport],[data-cal],[data-day],[data-year],[data-group],[data-student],[data-go],[data-clear]");
   if (!el) return;
+  if (el.dataset.calto !== undefined) { const [y, m] = el.dataset.calto.split("-").map(Number); CAL.y = y; CAL.m = m; CAL.sel = ""; viewKalender(); return; }
   if (el.dataset.go !== undefined) {
     const i = el.dataset.go.indexOf(":"), k = el.dataset.go.slice(0, i), v = el.dataset.go.slice(i + 1);
     Object.assign(F, F0());
