@@ -1,11 +1,11 @@
-// Områder. main = hovedfokus (Trondheim langs kysten ned til Kristiansand)
+// Områder. Hele Norge vises. main = hovedfokus (Bergen-området og Oslo-området)
 const REGIONS = {
-  trondelag: { label: "Trøndelag", main: true },
-  more: { label: "Møre og Romsdal", main: true },
-  vestland: { label: "Vestland", main: true },
-  rogaland: { label: "Rogaland", main: true },
-  agder: { label: "Agder (Kristiansand)", main: true },
-  ostlandet: { label: "Østlandet", main: false },
+  trondelag: { label: "Trøndelag", main: false },
+  more: { label: "Møre og Romsdal", main: false },
+  vestland: { label: "Vestland (Bergen)", main: true },
+  rogaland: { label: "Rogaland", main: false },
+  agder: { label: "Agder (Kristiansand)", main: false },
+  ostlandet: { label: "Østlandet (Oslo)", main: true },
   innlandet: { label: "Innlandet", main: false },
   telemark: { label: "Telemark/Vestfold", main: false },
   nord: { label: "Nord-Norge", main: false },

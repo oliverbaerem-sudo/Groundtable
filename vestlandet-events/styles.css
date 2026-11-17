@@ -267,3 +267,8 @@ h1 { letter-spacing: .005em; }
 .mh { font: 700 1.35rem/1 var(--font-d); text-transform: capitalize; border-bottom: 2px solid var(--brand); padding-bottom: 5px; margin-bottom: 10px; display: flex; align-items: baseline; gap: 10px; }
 .mh small { font: 500 .88rem var(--font-b); color: var(--ink-2); }
 @media (max-width: 720px) { .tiles { grid-template-columns: 1fr 1fr; } .tile { min-height: 118px; padding: 14px 12px; } .tile-n { font-size: 2rem; } .tile-t { font-size: 1.15rem; } .tabs a { font-size: .74rem; } }
+
+/* Resten av Norge: vanlig synlig, men uten hovedfokus-farge (v24) */
+.card.rest { border-left-color: #8fa3ab; }
+.card.rest .date { background: var(--muted-bg); }
+.card.rest .date b { color: var(--ink-2); }

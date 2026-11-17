@@ -36,9 +36,11 @@ const isBoard = (ev) => !!ev.board || BOARD_SPORTS.includes(ev.sport);
 const RUN_SPORTS = ["Løping", "Trailløp", "Hinderløp"];
 const isSmallRunOutsideHome = (ev) => RUN_SPORTS.includes(ev.sport) && !ev.big && !/bergen|oslo/i.test(ev.place || "");
 const isMain = (ev) => isBoard(ev) || (!!(REGIONS[ev.region] && REGIONS[ev.region].main) && !isSmallRunOutsideHome(ev));
+/* Hele Norge vises. Bergen- og Oslo-området er hovedfokus. Bare små løp utenfor Bergen og Oslo vises dempet. */
+const isMuted = (ev) => !isBoard(ev) && isSmallRunOutsideHome(ev);
 
 /* ---------- Lagring (kun denne nettleseren) ---------- */
-let store = { custom: [], joined: {}, contacts: {}, showMinor: true };
+let store = { custom: [], joined: {}, contacts: {}, showSmall: true };
 try { store = Object.assign(store, JSON.parse(localStorage.getItem("vl-store") || "{}")); } catch (e) {}
 const save = () => { try { localStorage.setItem("vl-store", JSON.stringify(store)); } catch (e) {} };
 
@@ -108,7 +110,7 @@ function card(e, ctx) {
     if (e.custom) actions += `<button class="btn sm danger" data-act="del" data-key="${esc(e.key)}">Slett</button>`;
   }
   const past = isPast(e);
-  return `<li class="card${main ? "" : " minor"}${isBoard(e) ? " board" : ""}${past ? " past" : ""}">${fmtDate(e)}<div style="min-width:0">
+  return `<li class="card${isMuted(e) ? " minor" : main ? "" : " rest"}${isBoard(e) ? " board" : ""}${past ? " past" : ""}">${fmtDate(e)}<div style="min-width:0">
     <h3>${esc(e.name)}</h3>
     <p class="meta">${esc(e.place || "Sted ikke oppgitt")} · ${esc(r ? r.label : "")} · ${esc(e.sport)}</p>
     ${e.notes ? `<p class="meta">${esc(e.notes)}</p>` : ""}
@@ -117,7 +119,7 @@ function card(e, ctx) {
       ${isNew(e) ? `<span class="tag new">Ny</span>` : ""}
       ${isBoard(e) ? `<span class="tag board">Brettsport</span>` : ""}
       ${e.student ? `<span class="tag ok">Student</span>` : ""}
-      ${main ? "" : `<span class="tag minor">Mindre viktig</span>`}
+      ${isMuted(e) ? `<span class="tag minor">Mindre viktig</span>` : ""}
       ${past ? `<span class="tag">Avholdt</span>` : ""}
       ${e.custom || e.big ? "" : `<span class="tag">Mindre arrangement</span>`}
       ${e.official ? `<span class="tag ok">Dato fra ${esc(typeof e.official === "string" ? e.official : "Brettforbundet")}</span>` : ""}
@@ -128,8 +130,8 @@ function card(e, ctx) {
     ${actions ? `<div class="actions">${actions}</div>` : ""}</div></li>`;
 }
 const listHtml = (evs, ctx, emptyMsg) => evs.length ? `<ul class="list">${evs.map((e) => card(e, ctx)).join("")}</ul>` : `<div class="empty">${emptyMsg}</div>`;
-const minorSwitch = () => `<label class="switch"><input type="checkbox" id="showMinor"${store.showMinor ? " checked" : ""}> Vis også andre steder i Norge (mindre viktig)</label>`;
-const visible = (evs) => store.showMinor ? evs : evs.filter(isMain);
+const minorSwitch = () => `<label class="switch"><input type="checkbox" id="showMinor"${store.showSmall ? " checked" : ""}> Vis også små løp utenfor Bergen og Oslo</label>`;
+const visible = (evs) => store.showSmall ? evs : evs.filter((e) => !isMuted(e));
 
 const sportOptions = (sel, group) => Object.entries(SPORT_GROUPS).filter(([g]) => !group || g === group).map(([g, list]) => `<optgroup label="${esc(g)}">${list.map((s) => `<option${s === sel ? " selected" : ""}>${esc(s)}</option>`).join("")}</optgroup>`).join("");
 /* ---------- Side: Søk ---------- */
@@ -144,13 +146,13 @@ function viewSok() {
     hero = `<section class="next" aria-label="Neste arrangement"><div class="big">${days}<small>${days === 1 ? "dag" : "dager"}</small></div>
       <div><h2>${esc(next.name)}</h2><p>${esc(next.place)} · ${parse(next.date).getDate()}. ${MONTHS[parse(next.date).getMonth()]} ${parse(next.date).getFullYear()} · ${nextBoard ? "neste brettarrangement" : "neste hovedarrangement"}</p></div></section>`;
   }
-  const regionOpts = Object.entries(REGIONS).map(([k, r]) => `<option value="${k}"${F.region === k ? " selected" : ""}>${esc(r.label)}${r.main ? "" : " (mindre viktig)"}</option>`).join("");
+  const regionOpts = Object.entries(REGIONS).map(([k, r]) => `<option value="${k}"${F.region === k ? " selected" : ""}>${esc(r.label)}</option>`).join("");
   const monthOpts = MONTHS.map((m, i) => `<option value="${i + 1}"${F.month == i + 1 ? " selected" : ""}>${m}</option>`).join("");
   const vis = visible(all);
   const gCount = (g) => vis.filter((e) => SPORT_GROUPS[g].includes(e.sport)).length;
   const groupChips = `<button type="button" class="chip" data-group="" aria-pressed="${!F.group}">Alle <b>${vis.length}</b></button>` +
     Object.keys(SPORT_GROUPS).map((g) => `<button type="button" class="chip" data-group="${esc(g)}" aria-pressed="${F.group === g}" style="--c:${GROUP_COLORS[g]}">${esc(g)} <b>${gCount(g)}</b></button>`).join("");
-  const banner = `<section class="hero"><div class="hero-in"><p class="eyebrow">Trondheim · Vestlandet · Kristiansand</p>
+  const banner = `<section class="hero"><div class="hero-in"><p class="eyebrow">Hele Norge · fokus på Bergen og Oslo</p>
       <h1>Finn ditt neste sportsarrangement</h1>
       <p class="lead">Brettsport først, så motorsport, uvanlige idretter og studentarrangementer. Kun for deltakere fra 18 år.</p>
       <dl class="stats"><div><dt>${vis.length}</dt><dd>kommende</dd></div><div><dt>${vis.filter(isBoard).length}</dt><dd>brettsport</dd></div><div><dt>${vis.filter((e) => e.student).length}</dt><dd>student</dd></div><div><dt>${vis.filter(isNew).length}</dt><dd>nye denne uken</dd></div></dl></div></section>`;
@@ -216,7 +218,7 @@ function viewKalender() {
   const t = todayIso();
   const grid = cells.map((c) => {
     const d = parse(c), de = onDay(c), out = d.getMonth() !== CAL.m;
-    const pills = de.slice(0, 3).map((e) => `<span class="pill${isMine(e) ? " mine" : isMain(e) ? "" : " minor"}" title="${esc(e.name)}">${esc(e.name)}</span>`).join("") + (de.length > 3 ? `<span class="pill minor">+${de.length - 3}</span>` : "");
+    const pills = de.slice(0, 3).map((e) => `<span class="pill${isMine(e) ? " mine" : isMuted(e) ? " minor" : ""}" title="${esc(e.name)}">${esc(e.name)}</span>`).join("") + (de.length > 3 ? `<span class="pill minor">+${de.length - 3}</span>` : "");
     return `<button type="button" class="day${out ? " out" : ""}${c === t ? " today" : ""}${c === CAL.sel ? " sel" : ""}" data-day="${c}" aria-label="${d.getDate()}. ${MONTHS[d.getMonth()]}, ${de.length} arrangementer"><span class="n">${d.getDate()}</span><span class="dots">${pills}</span></button>`;
   }).join("");
   const monthStart = iso(CAL.y, CAL.m + 1, 1), monthEnd = iso(CAL.y, CAL.m + 1, daysIn);
@@ -229,7 +231,7 @@ function viewKalender() {
     <div class="cal-head"><button class="btn ghost" data-cal="-1" aria-label="Forrige måned">←</button>
       <h2>${MONTHS[CAL.m]} ${CAL.y}</h2><button class="btn ghost" data-cal="1" aria-label="Neste måned">→</button></div>
     <div class="row" style="justify-content:space-between">${minorSwitch()}${isCurrent ? "" : `<button class="btn sm ghost" data-cal="0">Til inneværende måned</button>`}</div>
-    <div class="legend"><span>Hovedområde</span><span class="l-minor">Mindre viktig</span><span class="l-mine">Mine</span></div>
+    <div class="legend"><span>Arrangement</span><span class="l-minor">Små løp utenfor Bergen og Oslo</span><span class="l-mine">Mine</span></div>
     <div class="cal"><div class="cal-grid">${["man","tir","ons","tor","fre","lør","søn"].map((d) => `<div class="dow">${d}</div>`).join("")}${grid}</div></div>
     ${selList ? `<section><div class="sec-head"><h2>${parse(CAL.sel).getDate()}. ${MONTHS[parse(CAL.sel).getMonth()]}</h2><button class="btn sm ghost" data-day="">Vis hele måneden</button></div><div style="margin-top:10px">${listHtml(selList, "kal", "Ingen arrangementer denne dagen.")}</div></section>`
       : `<section><h2 style="margin-bottom:10px">Alle i ${MONTHS[CAL.m]}</h2>${listHtml(list, "kal", `Ingen kjente arrangementer i ${MONTHS[CAL.m]}. Bruk pilene for å bla, eller legg til egne under «Mine».`)}</section>`}
@@ -264,7 +266,7 @@ function viewMine() {
       <div class="row"><div class="field"><label for="fDate">Dato</label><input type="date" id="fDate" required></div>
         <div class="field"><label for="fEnd">Til dato (valgfritt)</label><input type="date" id="fEnd"></div></div>
       <div class="row"><div class="field"><label for="fPlace">Sted</label><input type="text" id="fPlace" maxlength="80" placeholder="F.eks. Bergen"></div>
-        <div class="field"><label for="fReg">Område</label><select id="fReg"><optgroup label="Hovedområde">${regionOpts(true)}</optgroup><optgroup label="Andre steder i Norge (mindre viktig)">${regionOpts(false)}</optgroup></select></div></div>
+        <div class="field"><label for="fReg">Område</label><select id="fReg"><optgroup label="Hovedfokus: Bergen og Oslo">${regionOpts(true)}</optgroup><optgroup label="Resten av Norge">${regionOpts(false)}</optgroup></select></div></div>
       <div class="row"><div class="field"><label for="fSport">Idrett</label><select id="fSport">${sportOptions("")}</select></div>
         <div class="field"><label for="fStatus">Status</label><select id="fStatus">${STATUSES.map((s) => `<option>${s}</option>`).join("")}</select></div></div>
       <div class="row"><div class="field"><label for="fCName">Kontaktperson (valgfritt)</label><input type="text" id="fCName" maxlength="80"></div>
@@ -363,7 +365,7 @@ document.addEventListener("click", (ev) => {
 });
 document.addEventListener("change", (ev) => {
   const t = ev.target;
-  if (t.id === "showMinor") { store.showMinor = t.checked; save(); rerender(); }
+  if (t.id === "showMinor") { store.showSmall = t.checked; save(); rerender(); }
   else if (t.id === "fRegion") { F.region = t.value; updateResults(); }
   else if (t.id === "fSportSel") { F.sport = t.value; updateResults(); }
   else if (t.id === "fSize") { F.size = t.value; updateResults(); }
