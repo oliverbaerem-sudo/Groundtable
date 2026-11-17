@@ -183,10 +183,22 @@ const SEED = [
   { id: "ecotrail-oslo-2027", added: "2026-11-17", year: 2027, url: "https://oslo.ecotrail.com/", info: "https://gotrail.run/no/event/ecotrail-oslo", name: "EcoTrail Oslo (10–80 km)", m: 5, d: 29, place: "Oslo, mål på Huk", region: "ostlandet", sport: "Trailløp", big: true },
   { id: "ibsf-vm-bob-skeleton-2027", added: "2026-11-17", year: 2027, url: "https://www.olympiaparken.no/en/arrangementer/vm2027", name: "VM bob og skeleton (IBSF)", m: 2, d: 15, end: 28, place: "Lillehammer", region: "innlandet", sport: "Bob og skeleton", big: true },
   { id: "masters-world-cup-langrenn-tromso-2027", added: "2026-11-17", year: 2027, url: "https://msm.no/en/masters-world-cup/", name: "Masters World Cup langrenn", m: 2, d: 26, end: 32, place: "Tromsø", region: "nord", sport: "Langrenn", big: true },
+  // --- Innsamling 2026-11-17 (natt 2) ---
+  { id: "winterrun-bergen-2027", added: "2026-11-17", year: 2027, info: "https://running.life/en/event/winterrun-bergen", name: "Winterrun Bergen (5 og 10 km)", m: 2, d: 6, place: "Bergen sentrum", region: "vestland", sport: "Løping" },
+  { id: "winterrun-oslo-2027", added: "2026-11-17", year: 2027, info: "https://running.life/en/event/winterrun-oslo", name: "Winterrun Oslo (5 og 10 km)", m: 1, d: 30, place: "Oslo", region: "ostlandet", sport: "Løping" },
+  { id: "ulriken-opp-2027", added: "2026-11-17", year: 2027, info: "https://www.fjordnorway.com/en/events/ulriken-opp-race-o5nyzi6qrju6nspjkvvmg", url: "https://ulrikenopp.no/", name: "Ulriken Opp (motbakkeløp)", m: 5, d: 22, place: "Ulriken, Bergen", region: "vestland", sport: "Løping" },
+  { id: "bergen-voss-2027", added: "2026-11-17", year: 2027, url: "https://www.bergen-voss.no/", info: "https://en.visitbergen.com/whats-on/sports", name: "Bergen–Voss (sykkelritt)", m: 6, d: 5, place: "Bergen–Voss", region: "vestland", sport: "Sykling" },
+  { id: "great-fjord-run-2027", added: "2026-11-17", year: 2027, url: "https://www.knarvikmila.no/", info: "https://en.visitbergen.com/whats-on/sports", name: "The Great Fjord Run (KnarvikMila)", m: 9, d: 3, end: 5, place: "Knarvik, Alver", region: "vestland", sport: "Løping", contact: { org: "FIL-AKS77", email: "info@knarvikmila.no" } },
+  { id: "oslo-lopsfestival-5ern-2027", added: "2026-11-17", year: 2027, info: "https://gotrail.run/en/event/oslo-lopsfestival", name: "Oslo Løpsfestival (åpner med 5 km vår)", m: 4, d: 9, end: 18, place: "Oslo", region: "ostlandet", sport: "Løping" },
+  { id: "brann-conference-agf", added: "2026-11-17", year: 2026, info: "https://en.visitbergen.com/whats-on/sports", name: "SK Brann – AGF Aarhus (Conference League)", m: 11, d: 26, place: "Brann Stadion, Bergen", region: "vestland", sport: "Fotball" },
+  { id: "brann-kristiansund", added: "2026-11-17", year: 2026, info: "https://en.visitbergen.com/whats-on/sports", name: "SK Brann – Kristiansund (Eliteserien)", m: 11, d: 29, place: "Brann Stadion, Bergen", region: "vestland", sport: "Fotball" },
+  { id: "brann-braga", added: "2026-11-17", year: 2026, info: "https://en.visitbergen.com/whats-on/sports", name: "SK Brann – SC Braga (Conference League)", m: 12, d: 10, place: "Brann Stadion, Bergen", region: "vestland", sport: "Fotball" },
 ];
 
 // Planlagt, men dato ikke fastsatt. Vises i fanen «Planlagt». Kun arrangementer som arrangøren selv har annonsert uten eksakt dato.
 // Format: { id, added: "YYYY-MM-DD", name, place, region, sport, when: "Sommer 2027" (ordrett fra kilden, valgfri), note, url/info, student, board, big, contact }
 const PLANNED = [
   { id: "tour-of-norway-2027", added: "2026-11-17", name: "Tour of Norway", place: "Rogaland m.fl.", region: "rogaland", sport: "Sykling", when: "2027, ikke bekreftet", note: "Arrangøren jobber for comeback, men finansieringen er ikke avklart.", info: "https://veloracycling.com/news/tour-of-norway-funding-2027", big: true },
+  { id: "letape-trondheim-2027", added: "2026-11-17", name: "L'Étape Trondheim", place: "Trondheim", region: "trondelag", sport: "Sykling", when: "Midten av juni 2027", note: "130 km. Eksakt dato ikke bekreftet.", info: "https://www.finishers.com/no/arrangement/l-etape-trondheim" },
+  { id: "nm-innendors-2027", added: "2026-11-17", name: "NM innendørs friidrett", place: "Bergen", region: "vestland", sport: "Friidrett", when: "Slutten av februar 2027, ubekreftet dato", info: "https://www.racedays.run/event/nm-innendors-2027" },
 ];
