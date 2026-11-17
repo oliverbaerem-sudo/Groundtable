@@ -16,8 +16,8 @@
   --ok: #17703f;
   --new: #0a7f5a;
   --shadow: 0 1px 2px rgba(13,34,41,.06), 0 4px 14px rgba(13,34,41,.05);
-  --font-d: "Barlow Condensed", "Arial Narrow", Impact, sans-serif;
-  --font-b: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-d: "Libre Franklin", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-b: "Libre Franklin", system-ui, -apple-system, "Segoe UI", sans-serif;
   color-scheme: light;
 }
 :root[data-theme="dark"] {
@@ -272,3 +272,23 @@ h1 { letter-spacing: .005em; }
 .card.rest { border-left-color: #8fa3ab; }
 .card.rest .date { background: var(--muted-bg); }
 .card.rest .date b { color: var(--ink-2); }
+
+/* ===== Rolig, redaksjonell typografi (v26) ===== */
+body { font-size: 15.5px; line-height: 1.55; letter-spacing: -.003em; }
+h1, h2, h3 { letter-spacing: -.02em; line-height: 1.15; font-weight: 700; }
+h1 { font-size: 2.1rem; } h2 { font-size: 1.4rem; } h3 { font-size: 1.1rem; }
+.brand { font-size: 1.2rem; letter-spacing: -.02em; }
+.hero h1 { font-size: 2.3rem; letter-spacing: -.025em; }
+.hero .lead { font-size: 1rem; }
+.stats dt { font-size: 1.6rem; letter-spacing: -.02em; }
+.card h3 { font-size: 1.1rem; }
+.date b { font-size: 1.6rem; letter-spacing: -.02em; }
+.date span { font-size: .72rem; letter-spacing: .06em; }
+.next .big { font-size: 2.6rem; }
+.next h2 { font-size: 1.4rem; }
+.cal-head h2 { font-size: 1.5rem; }
+.week .wk, .grp .g-t, .mh { font-size: 1.15rem; letter-spacing: -.015em; }
+.tile-n { font-size: 1.9rem; } .tile-t { font-size: 1.1rem; }
+.tabs a { font-weight: 500; font-size: .9rem; }
+.eyebrow { letter-spacing: .1em; font-weight: 600; }
+@media (max-width: 720px) { h1, .hero h1 { font-size: 1.8rem; } .stats dt { font-size: 1.4rem; } .tile-n { font-size: 1.6rem; } .tile-t { font-size: 1rem; } .tabs a { font-size: .72rem; } }
