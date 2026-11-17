@@ -190,9 +190,6 @@ const SEED = [
   { id: "bergen-voss-2027", added: "2026-11-17", year: 2027, url: "https://www.bergen-voss.no/", info: "https://en.visitbergen.com/whats-on/sports", name: "Bergen–Voss (sykkelritt)", m: 6, d: 5, place: "Bergen–Voss", region: "vestland", sport: "Sykling" },
   { id: "great-fjord-run-2027", added: "2026-11-17", year: 2027, url: "https://www.knarvikmila.no/", info: "https://en.visitbergen.com/whats-on/sports", name: "The Great Fjord Run (KnarvikMila)", m: 9, d: 3, end: 5, place: "Knarvik, Alver", region: "vestland", sport: "Løping", contact: { org: "FIL-AKS77", email: "info@knarvikmila.no" } },
   { id: "oslo-lopsfestival-5ern-2027", added: "2026-11-17", year: 2027, info: "https://gotrail.run/en/event/oslo-lopsfestival", name: "Oslo Løpsfestival (åpner med 5 km vår)", m: 4, d: 9, end: 18, place: "Oslo", region: "ostlandet", sport: "Løping" },
-  { id: "brann-conference-agf", added: "2026-11-17", year: 2026, info: "https://en.visitbergen.com/whats-on/sports", name: "SK Brann – AGF Aarhus (Conference League)", m: 11, d: 26, place: "Brann Stadion, Bergen", region: "vestland", sport: "Fotball" },
-  { id: "brann-kristiansund", added: "2026-11-17", year: 2026, info: "https://en.visitbergen.com/whats-on/sports", name: "SK Brann – Kristiansund (Eliteserien)", m: 11, d: 29, place: "Brann Stadion, Bergen", region: "vestland", sport: "Fotball" },
-  { id: "brann-braga", added: "2026-11-17", year: 2026, info: "https://en.visitbergen.com/whats-on/sports", name: "SK Brann – SC Braga (Conference League)", m: 12, d: 10, place: "Brann Stadion, Bergen", region: "vestland", sport: "Fotball" },
 ];
 
 // Planlagt, men dato ikke fastsatt. Vises i fanen «Planlagt». Kun arrangementer som arrangøren selv har annonsert uten eksakt dato.
