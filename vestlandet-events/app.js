@@ -135,36 +135,51 @@ const visible = (evs) => store.showSmall ? evs : evs.filter((e) => !isMuted(e));
 
 const sportOptions = (sel, group) => Object.entries(SPORT_GROUPS).filter(([g]) => !group || g === group).map(([g, list]) => `<optgroup label="${esc(g)}">${list.map((s) => `<option${s === sel ? " selected" : ""}>${esc(s)}</option>`).join("")}</optgroup>`).join("");
 
-/* ---------- Side: Forside (oversikt med kategorier) ---------- */
+/* ---------- Side: Forside (tre kategoribokser) ---------- */
 const F0 = () => ({ q: "", sport: "", group: "", region: "", month: "", size: "", past: false, board: false, student: false });
+const homeTile = (go, n, title, sub, color) => `<button type="button" class="tile${n ? "" : " empty-t"}" data-go="${esc(go)}" style="--c:${color || "var(--brand)"}"><span class="tile-n">${n}</span><span class="tile-t">${esc(title)}</span>${sub ? `<span class="tile-s">${esc(sub)}</span>` : ""}</button>`;
 function viewHjem() {
-  const all = visible(upcoming(false)), t0 = new Date();
-  const nextBoard = all.find(isBoard), nb = nextBoard;
-  const nextLine = nb ? `<p class="next-line"><b>Neste brettarrangement:</b> ${esc(nb.name)}, ${esc(nb.place)} · ${parse(nb.date).getDate()}. ${MONTHS[parse(nb.date).getMonth()]}</p>` : "";
-  const tile = (go, n, title, sub, color) => `<button type="button" class="tile${n ? "" : " empty-t"}" data-go="${esc(go)}" style="--c:${color || "var(--brand)"}"><span class="tile-n">${n}</span><span class="tile-t">${esc(title)}</span>${sub ? `<span class="tile-s">${esc(sub)}</span>` : ""}</button>`;
-  const sportTiles = Object.entries(SPORT_GROUPS).map(([g, list]) => {
-    const ge = all.filter((e) => list.includes(e.sport)), have = [...new Set(ge.map((e) => e.sport))];
-    return tile("group:" + g, ge.length, g, (have.length ? have : list).slice(0, 3).join(", "), GROUP_COLORS[g]);
-  }).join("");
-  const rc = (k) => all.filter((e) => e.region === k).length;
-  const mainR = Object.entries(REGIONS).filter(([, r]) => r.main), restR = Object.entries(REGIONS).filter(([, r]) => !r.main);
-  const regionTiles = mainR.map(([k, r]) => tile("region:" + k, rc(k), r.label.replace(/ \(.*\)/, ""), r.label.match(/\((.*)\)/) ? r.label.match(/\((.*)\)/)[1] : "", "var(--brand)")).join("");
-  const restChips = restR.map(([k, r]) => `<button type="button" class="chip" data-go="region:${k}">${esc(r.label)} <b>${rc(k)}</b></button>`).join("");
-  const monthTiles = Array.from({ length: 12 }, (_, i) => { const m = (t0.getMonth() + i) % 12; return { m, n: all.filter((e) => parse(e.date).getMonth() === m).length }; })
-    .map(({ m, n }) => `<button type="button" class="mtile${n ? "" : " empty-t"}" data-go="month:${m + 1}"><span>${MONTHS[m]}</span><b>${n}</b></button>`).join("");
-  const nNew = all.filter(isNew).length;
+  const all = visible(upcoming(false));
+  const nNew = all.filter(isNew).length, nb = all.find(isBoard);
+  const nextLine = nb ? `<p class="next-line hero-next"><b>Neste brettarrangement:</b> ${esc(nb.name)}, ${esc(nb.place)} · ${parse(nb.date).getDate()}. ${MONTHS[parse(nb.date).getMonth()]}</p>` : "";
+  const box = (href, title, sub, color) => `<a class="catbox" href="${href}" style="--c:${color}"><span class="cb-t">${title}</span><span class="cb-s">${sub}</span><span class="cb-go" aria-hidden="true">→</span></a>`;
   $app.innerHTML = `<div class="stack home">
     <section class="hero"><div class="hero-in"><p class="eyebrow">Hele Norge · fokus på Bergen, Oslo, Stavanger og Trondheim</p>
       <h1>Velkommen til Groundtable</h1>
       <p class="lead">Finn ditt neste sportsarrangement. Brettsport først, så motorsport, uvanlige idretter og studentarrangementer. Kun for deltakere fra 18 år.</p>
       <form id="homeSearch" class="home-search" role="search"><input type="search" id="hq" placeholder="Søk på navn eller sted" aria-label="Søk"><button class="btn accent" type="submit">Søk</button></form>
       <dl class="stats"><div><dt>${all.length}</dt><dd>kommende</dd></div><div><dt>${all.filter(isBoard).length}</dt><dd>brettsport</dd></div><div><dt>${all.filter((e) => e.student).length}</dt><dd>student</dd></div><div><dt>${nNew}</dt><dd>nye denne uken</dd></div></dl>
-      ${nextLine ? nextLine.replace('class="next-line"', 'class="next-line hero-next"') : ""}</div></section>
-    <section class="hsec"><h2>Velg sport</h2><div class="tiles">${sportTiles}</div></section>
-    <section class="hsec"><h2>Velg område</h2><div class="tiles">${regionTiles}</div><p class="lbl" style="margin:14px 0 6px">Resten av Norge</p><div class="chips">${restChips}</div></section>
-    <section class="hsec"><h2>Velg måned</h2><div class="mtiles">${monthTiles}</div></section>
+      ${nextLine}</div></section>
+    <section class="cats" aria-label="Utforsk">
+      ${box("#sport", "Sport", `${Object.keys(SPORT_GROUPS).length} grupper, fra brettsport til motorsport`, "#5b3fc4")}
+      ${box("#omrade", "Område", "Bergen, Oslo, Stavanger, Trondheim og resten av Norge", "#0f5d70")}
+      ${box("#maned", "Måned", "Se hva som skjer måned for måned", "#b8710a")}
+    </section>
     <p class="row" style="justify-content:center"><button type="button" class="btn ghost" data-go="all:">Se alle ${all.length} arrangementer</button></p></div>`;
 }
+function viewKategori(kind) {
+  const all = visible(upcoming(false)), t0 = new Date();
+  let title, body;
+  if (kind === "sport") {
+    title = "Velg sport";
+    body = `<div class="tiles">${Object.entries(SPORT_GROUPS).map(([g, list]) => {
+      const ge = all.filter((e) => list.includes(e.sport)), have = [...new Set(ge.map((e) => e.sport))];
+      return homeTile("group:" + g, ge.length, g, (have.length ? have : list).slice(0, 3).join(", "), GROUP_COLORS[g]);
+    }).join("")}</div>`;
+  } else if (kind === "omrade") {
+    title = "Velg område";
+    const rc = (k) => all.filter((e) => e.region === k).length;
+    const main = Object.entries(REGIONS).filter(([, r]) => r.main), rest = Object.entries(REGIONS).filter(([, r]) => !r.main);
+    body = `<div class="tiles">${main.map(([k, r]) => homeTile("region:" + k, rc(k), r.label.replace(/ \(.*\)/, ""), (r.label.match(/\((.*)\)/) || [, ""])[1], "var(--brand)")).join("")}</div>
+      <p class="lbl" style="margin:18px 0 8px">Resten av Norge</p><div class="chips">${rest.map(([k, r]) => `<button type="button" class="chip" data-go="region:${k}">${esc(r.label)} <b>${rc(k)}</b></button>`).join("")}</div>`;
+  } else {
+    title = "Velg måned";
+    body = `<div class="mtiles">${Array.from({ length: 12 }, (_, i) => { const m = (t0.getMonth() + i) % 12, n = all.filter((e) => parse(e.date).getMonth() === m).length;
+      return `<button type="button" class="mtile${n ? "" : " empty-t"}" data-go="month:${m + 1}"><span>${MONTHS[m]}</span><b>${n}</b></button>`; }).join("")}</div>`;
+  }
+  $app.innerHTML = `<div class="stack"><div><a class="back" href="#hjem">← Forside</a><h1>${title}</h1></div>${body}</div>`;
+}
+const viewSport = () => viewKategori("sport"), viewOmrade = () => viewKategori("omrade"), viewManed = () => viewKategori("maned");
 
 /* ---------- Side: Søk ---------- */
 const GROUP_COLORS = { "Brettsport": "#5b3fc4", "Løp og terreng": "#0f5d70", "Sykkel": "#b8710a", "Vann": "#1479b8", "Luft": "#6f8aa0", "Vinter": "#3f86bf", "Ball og racket": "#2f8f5b", "Styrke og kamp": "#b2392f", "Motorsport": "#d9482a", "Dyr": "#8a5a2b", "Annet": "#6b7b82" };
@@ -375,12 +390,12 @@ function viewPlanlagt() {
 }
 
 /* ---------- Ruting ---------- */
-const VIEWS = { hjem: viewHjem, sok: viewSok, idretter: viewIdretter, nytt: viewNytt, planlagt: viewPlanlagt, kalender: viewKalender, aret: viewAret, mine: viewMine };
+const VIEWS = { hjem: viewHjem, sport: viewSport, omrade: viewOmrade, maned: viewManed, sok: viewSok, idretter: viewIdretter, nytt: viewNytt, planlagt: viewPlanlagt, kalender: viewKalender, aret: viewAret, mine: viewMine };
 function route() {
   const h = (location.hash || "#hjem").slice(1);
   const name = VIEWS[h] ? h : "hjem";
   document.querySelectorAll(".tabs a").forEach((a) => {
-    if (a.dataset.tab === name) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    if (a.dataset.tab === (["sport", "omrade", "maned"].includes(name) ? "hjem" : name)) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
   });
   VIEWS[name]();
   updateCount();
