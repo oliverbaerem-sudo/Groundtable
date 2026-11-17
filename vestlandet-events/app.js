@@ -151,7 +151,7 @@ function viewHjem() {
   $app.innerHTML = `<div class="stack home">
     <section class="hero"><div class="hero-in hero-grid"><div class="hero-main"><p class="eyebrow">Hele Norge · fokus på Bergen, Oslo, Stavanger og Trondheim</p>
       <h1>Velkommen til Groundtable</h1>
-      <p class="lead lead-board"><b>Brettsport først:</b> surf, skate og snowboard har alltid førsteplassen. Deretter motorsport, uvanlige idretter og studentarrangementer fra hele Norge. Kun for deltakere fra 18 år.</p>
+      <p class="lead lead-board"><b>Brettsport først:</b> alt på brett har alltid førsteplassen, fra surfing, skate og snowboard til wakeboard, windsurf, SUP og BMX. Deretter motorsport, uvanlige idretter og studentarrangementer fra hele Norge. Kun for deltakere fra 18 år.</p>
       <form id="homeSearch" class="home-search" role="search"><input type="search" id="hq" placeholder="Søk på navn eller sted" aria-label="Søk"><button class="btn accent" type="submit">Søk</button></form>
       <dl class="stats"><div><dt>${all.length}</dt><dd>kommende</dd></div><div><dt>${all.filter(isBoard).length}</dt><dd>brettsport</dd></div><div><dt>${all.filter((e) => e.student).length}</dt><dd>student</dd></div><div><dt>${nNew}</dt><dd>nye denne uken</dd></div></dl></div>
       ${nextLine}</div></section>
