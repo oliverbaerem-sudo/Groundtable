@@ -149,8 +149,8 @@ function viewHjem() {
       ${(nb.url || nb.info) ? `<a class="btn sm accent" href="${esc(nb.url || nb.info)}" target="_blank" rel="noopener">Gå til nettside ↗</a>` : ""}</aside>` : "";
   const box = (href, title, sub, color) => `<a class="catbox" href="${href}" style="--c:${color}"><span class="cb-t">${title}</span><span class="cb-s">${sub}</span><span class="cb-go" aria-hidden="true">→</span></a>`;
   $app.innerHTML = `<div class="stack home">
-    <section class="hero"><div class="hero-in hero-grid"><div class="hero-main"><p class="eyebrow">Velkommen til Groundtable</p>
-      <h1>Finn ditt neste arrangement</h1>
+    <section class="hero"><div class="hero-in hero-grid"><div class="hero-main"><h1>Velkommen til Groundtable</h1>
+      <p class="hero-sub">Finn ditt neste arrangement</p>
       <p class="lead">Groundtable samler sports- og idrettsarrangementer fra hele Norge på ett sted, med hovedfokus på Bergen, Oslo, Stavanger og Trondheim. Her finner du alt fra surfing og skate til motorsport, uvanlige idretter og studentarrangementer. Alle er for deltakere fra 18 år, og listen oppdateres hver natt.</p>
       <form id="homeSearch" class="home-search" role="search"><input type="search" id="hq" placeholder="Søk på navn eller sted" aria-label="Søk"><button class="btn accent" type="submit">Søk</button></form>
       <dl class="stats"><div><dt>${all.length}</dt><dd>kommende</dd></div><div><dt>${all.filter(isBoard).length}</dt><dd>brettsport</dd></div><div><dt>${all.filter((e) => e.student).length}</dt><dd>student</dd></div><div><dt>${nNew}</dt><dd>nye denne uken</dd></div></dl></div>
