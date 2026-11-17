@@ -32,11 +32,11 @@ function contactHtml(e) {
     `<details class="cedit"><summary>${c ? "Endre kontakt" : "Legg til kontaktperson"}</summary><div class="row">${f("name", "Navn", "Kontaktperson")}${f("email", "E-post", "navn@eksempel.no")}${f("phone", "Telefon", "900 00 000")}<button type="button" class="btn sm" data-act="savecontact" data-key="${esc(e.key)}">Lagre</button></div></details>`;
 }
 const isBoard = (ev) => !!ev.board || BOARD_SPORTS.includes(ev.sport);
-/* Små løp (løping, trail, hinderløp) er bare viktige i Bergen og Oslo. Alle andre steder vises de dempet. */
+/* Små løp (løping, trail, hinderløp) er bare viktige i Bergen, Oslo, Stavanger og Trondheim. Alle andre steder vises de dempet. */
 const RUN_SPORTS = ["Løping", "Trailløp", "Hinderløp"];
-const isSmallRunOutsideHome = (ev) => RUN_SPORTS.includes(ev.sport) && !ev.big && !/bergen|oslo/i.test(ev.place || "");
+const isSmallRunOutsideHome = (ev) => RUN_SPORTS.includes(ev.sport) && !ev.big && !/bergen|oslo|stavanger|trondheim/i.test(ev.place || "");
 const isMain = (ev) => isBoard(ev) || (!!(REGIONS[ev.region] && REGIONS[ev.region].main) && !isSmallRunOutsideHome(ev));
-/* Hele Norge vises. Bergen- og Oslo-området er hovedfokus. Bare små løp utenfor Bergen og Oslo vises dempet. */
+/* Hele Norge vises. Bergen- og Oslo-området er hovedfokus. Bare små løp utenfor Bergen, Oslo, Stavanger og Trondheim vises dempet. */
 const isMuted = (ev) => !isBoard(ev) && isSmallRunOutsideHome(ev);
 
 /* ---------- Lagring (kun denne nettleseren) ---------- */
@@ -130,7 +130,7 @@ function card(e, ctx) {
     ${actions ? `<div class="actions">${actions}</div>` : ""}</div></li>`;
 }
 const listHtml = (evs, ctx, emptyMsg) => evs.length ? `<ul class="list">${evs.map((e) => card(e, ctx)).join("")}</ul>` : `<div class="empty">${emptyMsg}</div>`;
-const minorSwitch = () => `<label class="switch"><input type="checkbox" id="showMinor"${store.showSmall ? " checked" : ""}> Vis også små løp utenfor Bergen og Oslo</label>`;
+const minorSwitch = () => `<label class="switch"><input type="checkbox" id="showMinor"${store.showSmall ? " checked" : ""}> Vis også små løp utenfor Bergen, Oslo, Stavanger og Trondheim</label>`;
 const visible = (evs) => store.showSmall ? evs : evs.filter((e) => !isMuted(e));
 
 const sportOptions = (sel, group) => Object.entries(SPORT_GROUPS).filter(([g]) => !group || g === group).map(([g, list]) => `<optgroup label="${esc(g)}">${list.map((s) => `<option${s === sel ? " selected" : ""}>${esc(s)}</option>`).join("")}</optgroup>`).join("");
@@ -152,7 +152,7 @@ function viewSok() {
   const gCount = (g) => vis.filter((e) => SPORT_GROUPS[g].includes(e.sport)).length;
   const groupChips = `<button type="button" class="chip" data-group="" aria-pressed="${!F.group}">Alle <b>${vis.length}</b></button>` +
     Object.keys(SPORT_GROUPS).map((g) => `<button type="button" class="chip" data-group="${esc(g)}" aria-pressed="${F.group === g}" style="--c:${GROUP_COLORS[g]}">${esc(g)} <b>${gCount(g)}</b></button>`).join("");
-  const banner = `<section class="hero"><div class="hero-in"><p class="eyebrow">Hele Norge · fokus på Bergen og Oslo</p>
+  const banner = `<section class="hero"><div class="hero-in"><p class="eyebrow">Hele Norge · fokus på Bergen, Oslo, Stavanger og Trondheim</p>
       <h1>Finn ditt neste sportsarrangement</h1>
       <p class="lead">Brettsport først, så motorsport, uvanlige idretter og studentarrangementer. Kun for deltakere fra 18 år.</p>
       <dl class="stats"><div><dt>${vis.length}</dt><dd>kommende</dd></div><div><dt>${vis.filter(isBoard).length}</dt><dd>brettsport</dd></div><div><dt>${vis.filter((e) => e.student).length}</dt><dd>student</dd></div><div><dt>${vis.filter(isNew).length}</dt><dd>nye denne uken</dd></div></dl></div></section>`;
@@ -231,7 +231,7 @@ function viewKalender() {
     <div class="cal-head"><button class="btn ghost" data-cal="-1" aria-label="Forrige måned">←</button>
       <h2>${MONTHS[CAL.m]} ${CAL.y}</h2><button class="btn ghost" data-cal="1" aria-label="Neste måned">→</button></div>
     <div class="row" style="justify-content:space-between">${minorSwitch()}${isCurrent ? "" : `<button class="btn sm ghost" data-cal="0">Til inneværende måned</button>`}</div>
-    <div class="legend"><span>Arrangement</span><span class="l-minor">Små løp utenfor Bergen og Oslo</span><span class="l-mine">Mine</span></div>
+    <div class="legend"><span>Arrangement</span><span class="l-minor">Små løp utenfor Bergen, Oslo, Stavanger og Trondheim</span><span class="l-mine">Mine</span></div>
     <div class="cal"><div class="cal-grid">${["man","tir","ons","tor","fre","lør","søn"].map((d) => `<div class="dow">${d}</div>`).join("")}${grid}</div></div>
     ${selList ? `<section><div class="sec-head"><h2>${parse(CAL.sel).getDate()}. ${MONTHS[parse(CAL.sel).getMonth()]}</h2><button class="btn sm ghost" data-day="">Vis hele måneden</button></div><div style="margin-top:10px">${listHtml(selList, "kal", "Ingen arrangementer denne dagen.")}</div></section>`
       : `<section><h2 style="margin-bottom:10px">Alle i ${MONTHS[CAL.m]}</h2>${listHtml(list, "kal", `Ingen kjente arrangementer i ${MONTHS[CAL.m]}. Bruk pilene for å bla, eller legg til egne under «Mine».`)}</section>`}
@@ -266,7 +266,7 @@ function viewMine() {
       <div class="row"><div class="field"><label for="fDate">Dato</label><input type="date" id="fDate" required></div>
         <div class="field"><label for="fEnd">Til dato (valgfritt)</label><input type="date" id="fEnd"></div></div>
       <div class="row"><div class="field"><label for="fPlace">Sted</label><input type="text" id="fPlace" maxlength="80" placeholder="F.eks. Bergen"></div>
-        <div class="field"><label for="fReg">Område</label><select id="fReg"><optgroup label="Hovedfokus: Bergen og Oslo">${regionOpts(true)}</optgroup><optgroup label="Resten av Norge">${regionOpts(false)}</optgroup></select></div></div>
+        <div class="field"><label for="fReg">Område</label><select id="fReg"><optgroup label="Hovedfokus: Bergen, Oslo, Stavanger og Trondheim">${regionOpts(true)}</optgroup><optgroup label="Resten av Norge">${regionOpts(false)}</optgroup></select></div></div>
       <div class="row"><div class="field"><label for="fSport">Idrett</label><select id="fSport">${sportOptions("")}</select></div>
         <div class="field"><label for="fStatus">Status</label><select id="fStatus">${STATUSES.map((s) => `<option>${s}</option>`).join("")}</select></div></div>
       <div class="row"><div class="field"><label for="fCName">Kontaktperson (valgfritt)</label><input type="text" id="fCName" maxlength="80"></div>
