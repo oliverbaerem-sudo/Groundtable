@@ -48,7 +48,7 @@ const save = () => { try { localStorage.setItem("vl-store", JSON.stringify(store
 function seedEvent(base, y) {
   const s = base.on && base.on[y] ? Object.assign({}, base, base.on[y]) : base;
   return { key: `${s.id}@${y}`, id: s.id, name: s.name, date: iso(y, s.m, s.d), end: s.end ? iso2(y, s.m, s.end) : "",
-    place: s.place, region: s.region, sport: s.sport, contact: s.contact || null, big: !!s.big, board: !!s.board, student: !!s.student, added: s.added || "", official: s.official || "", url: s.url || "", info: s.info || "", approx: true, fromSearch: !!s.year, custom: false };
+    place: s.place, region: s.region, sport: s.sport, contact: s.contact || null, big: !!s.big, board: !!s.board, student: !!s.student, added: s.added || "", official: s.official || "", url: s.url || "", info: s.info || "", approx: true, fromSearch: !!s.year, custom: false, participants: s.participants || null };
 }
 function customEvent(c) { return { key: c.id, id: c.id, name: c.name, date: c.date, end: c.end || "", place: c.place, region: c.region,
   sport: c.sport, link: c.link, notes: c.notes, approx: false, custom: true, status: c.status }; }
@@ -92,6 +92,16 @@ function fmtDate(e) {
   const d = parse(e.date);
   return `<div class="date"><b>${d.getDate()}</b><span>${MON_S[d.getMonth()]}</span>${e.end ? `<i>til ${parse(e.end).getDate()}. ${MON_S[parse(e.end).getMonth()]}</i>` : ""}</div>`;
 }
+function partsHtml(e) {
+  const p = e.participants;
+  if (!p || (!Number.isFinite(p.registered) && !Number.isFinite(p.expected))) return "";
+  const src = safeUrl(p.src), nf = (n) => n.toLocaleString("nb-NO");
+  const bits = [];
+  if (Number.isFinite(p.registered)) bits.push(`<strong>${nf(p.registered)}</strong> påmeldte`);
+  if (Number.isFinite(p.expected)) bits.push(`ca. <strong>${nf(p.expected)}</strong> forventet${p.basis ? ` (${esc(p.basis)})` : ""}`);
+  const asOf = p.asOf ? `per ${esc(p.asOf)}` : "";
+  return `<p class="parts"><span class="lbl">Deltakere</span> ${bits.join(" · ")} ${src ? `<a href="${esc(src)}" target="_blank" rel="noopener">${asOf || "kilde"} ↗</a>` : asOf}</p>`;
+}
 function card(e, ctx) {
   const main = isMain(e), r = REGIONS[e.region];
   const q = encodeURIComponent(e.name + " " + e.date.slice(0, 4) + " offisiell nettside");
@@ -114,6 +124,7 @@ function card(e, ctx) {
     <h3>${esc(e.name)}</h3>
     <p class="meta">${esc(e.place || "Sted ikke oppgitt")} · ${esc(r ? r.label : "")} · ${esc(e.sport)}</p>
     ${e.notes ? `<p class="meta">${esc(e.notes)}</p>` : ""}
+    ${partsHtml(e)}
     ${contactHtml(e)}
     <div class="tags">
       ${isNew(e) ? `<span class="tag new">Ny</span>` : ""}
