@@ -175,6 +175,8 @@ form.add { background: var(--surface); border: 1px solid var(--line); border-rad
 
 .contact { margin: 8px 0 0; font-size: .94rem; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
 .contact .lbl { margin-right: 2px; }
+.parts { margin: 8px 0 0; font-size: .94rem; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
+.parts .lbl { margin-right: 2px; }
 .contact.none { color: var(--ink-2); }
 .cedit { margin-top: 6px; }
 .cedit summary { cursor: pointer; color: var(--brand-text); font-size: .88rem; }
