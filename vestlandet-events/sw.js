@@ -1,4 +1,4 @@
-const CACHE = "groundtable-v43";
+const CACHE = "groundtable-v44";
 const FILES = ["./", "index.html", "styles.css", "app.js", "data.js", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-512.png", "icons/apple-touch-icon.png"];
 
