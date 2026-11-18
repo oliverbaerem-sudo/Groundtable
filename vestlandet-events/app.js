@@ -189,6 +189,8 @@ const viewSport = () => viewKategori("sport"), viewOmrade = () => viewKategori("
 /* ---------- Side: Søk ---------- */
 const GROUP_ICONS = { "Brettsport": "🏄", "Løp og terreng": "🏃", "Sykkel": "🚴", "Vann": "🏊", "Luft": "🪂", "Vinter": "⛷️", "Ball og racket": "⚽", "Styrke og kamp": "🥊", "Motorsport": "🏎️", "Dyr": "🐎", "Annet": "⭐" };
 const GROUP_COLORS = { "Brettsport": "#5b3fc4", "Løp og terreng": "#0f5d70", "Sykkel": "#b8710a", "Vann": "#1479b8", "Luft": "#6f8aa0", "Vinter": "#3f86bf", "Ball og racket": "#2f8f5b", "Styrke og kamp": "#b2392f", "Motorsport": "#d9482a", "Dyr": "#8a5a2b", "Annet": "#6b7b82" };
+const groupOf = (sport) => (Object.entries(SPORT_GROUPS).find(([, l]) => l.includes(sport)) || ["Annet"])[0];
+const colorOf = (e) => GROUP_COLORS[groupOf(e.sport)] || "#6b7b82";
 const F = { q: "", sport: "", group: "", region: "", month: "", size: "", past: false, board: false, student: false };
 function viewSok() {
   const all = upcoming(false);
@@ -279,7 +281,7 @@ function viewKalender() {
   const t = todayIso();
   const grid = cells.map((c) => {
     const d = parse(c), de = onDay(c), out = d.getMonth() !== CAL.m;
-    const pills = de.slice(0, 3).map((e) => `<span class="pill${isMine(e) ? " mine" : isMuted(e) ? " minor" : ""}" title="${esc(e.name)}">${esc(e.name)}</span>`).join("") + (de.length > 3 ? `<span class="pill minor">+${de.length - 3}</span>` : "");
+    const pills = de.slice(0, 3).map((e) => `<span class="pill${isMine(e) ? " mine" : ""}${isMuted(e) ? " minor" : ""}" style="--c:${colorOf(e)}" title="${esc(e.name)} (${esc(groupOf(e.sport))})">${esc(e.name)}</span>`).join("") + (de.length > 3 ? `<span class="pill minor">+${de.length - 3}</span>` : "");
     return `<button type="button" class="day${out ? " out" : ""}${c === t ? " today" : ""}${c === CAL.sel ? " sel" : ""}" data-day="${c}" aria-label="${d.getDate()}. ${MONTHS[d.getMonth()]}, ${de.length} arrangementer"><span class="n">${d.getDate()}</span><span class="dots">${pills}</span></button>`;
   }).join("");
   const monthStart = iso(CAL.y, CAL.m + 1, 1), monthEnd = iso(CAL.y, CAL.m + 1, daysIn);
@@ -294,7 +296,7 @@ function viewKalender() {
     <div class="cal-head"><button class="btn ghost" data-cal="-1" aria-label="Forrige måned">←</button>
       <h2>${MONTHS[CAL.m]} ${CAL.y}</h2><button class="btn ghost" data-cal="1" aria-label="Neste måned">→</button></div>
     <div class="row" style="justify-content:space-between">${minorSwitch()}${isCurrent ? "" : `<button class="btn sm ghost" data-cal="0">Til inneværende måned</button>`}</div>
-    <div class="legend"><span>Arrangement</span><span class="l-minor">Små løp utenfor Bergen, Oslo, Stavanger og Trondheim</span><span class="l-mine">Mine</span></div>
+    <div class="legend">${[...new Set(list.map((e) => groupOf(e.sport)))].map((g) => `<span class="l-grp" style="--c:${GROUP_COLORS[g]}">${esc(g)}</span>`).join("")}<span class="l-minor">Dempet: små løp utenfor de fire byene</span><span class="l-mine">Ring: mine</span></div>
     <div class="cal"><div class="cal-grid">${["man","tir","ons","tor","fre","lør","søn"].map((d) => `<div class="dow">${d}</div>`).join("")}${grid}</div></div>
     ${selList ? `<section><div class="sec-head"><h2>${parse(CAL.sel).getDate()}. ${MONTHS[parse(CAL.sel).getMonth()]}</h2><button class="btn sm ghost" data-day="">Vis hele måneden</button></div><div style="margin-top:10px">${listHtml(selList, "kal", "Ingen arrangementer denne dagen.")}</div></section>`
       : `<section><h2 style="margin-bottom:10px">Alle i ${MONTHS[CAL.m]}</h2>${listHtml(list, "kal", `Ingen kjente arrangementer i ${MONTHS[CAL.m]}. Bruk pilene for å bla, eller legg til egne under «Mine».`)}</section>`}
