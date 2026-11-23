@@ -823,6 +823,17 @@ const SEED = [
   { id: "nyttarslopetegersund-20271231", added: "2026-11-23", year: 2027, info: "https://running.life/running-calendar/norway", name: "Nyttårsløpet Egersund", m: 12, d: 31, place: "Egersund", region: "rogaland", sport: "Løping" },
 { id: "blodslitet-nm-ultralang-2027", added: "2026-11-23", year: 2027, info: "https://running.life/trail-running-calendar/norway/ostfold", name: "Blodslitet (NM ultralang)", m: 10, d: 16, place: "Fredrikstad", region: "ostlandet", sport: "Orientering" },
 { id: "kongsvingerrittet-2027", added: "2026-11-23", year: 2027, info: "https://trainerday.com/events/no/kongsvingerrittet", name: "Kongsvingerrittet (98 km landevei)", m: 5, d: 6, place: "Kongsvinger", region: "innlandet", sport: "Sykling", contact: { org: "Innlandet Bedriftsidrettskrets" } },
+// --- Bowling, terminliste fra bowling.no (2026-11-23) ---
+  { id: "nm-bowling-sgl-dbl-2027", added: "2026-11-23", year: 2027, info: "https://data.bowling.no/terminliste/pdf/", name: "NM bowling singel/double", m: 5, d: 3, end: 9, place: "Hønefoss (Løkka)", region: "ostlandet", sport: "Bowling" },
+  { id: "nm-bowling-veteran-2027", added: "2026-11-23", year: 2027, info: "https://data.bowling.no/terminliste/pdf/", name: "NM bowling veteran singel/double", m: 2, d: 12, end: 14, place: "Hamar", region: "innlandet", sport: "Bowling" },
+  { id: "clever-points-bowling-oslo-2027", added: "2026-11-23", year: 2027, info: "https://data.bowling.no/terminliste/pdf/", name: "Clever Points (bowling)", m: 2, d: 18, end: 21, place: "Bowl Veitvet, Oslo", region: "ostlandet", sport: "Bowling" },
+  { id: "tbk-dual-condition-2027", added: "2026-11-23", year: 2027, info: "https://data.bowling.no/terminliste/pdf/", name: "TBK Dual Condition (bowling)", m: 2, d: 16, end: 21, place: "Centrum, Trondheim", region: "trondelag", sport: "Bowling" },
+  { id: "centrumstuben-bowling-2027", added: "2026-11-23", year: 2027, info: "https://data.bowling.no/terminliste/pdf/", name: "Centrumstuben (bowling)", m: 3, d: 16, end: 21, place: "Centrum, Trondheim", region: "trondelag", sport: "Bowling" },
+  { id: "tbk-50plus-bowling-2027", added: "2026-11-23", year: 2027, info: "https://data.bowling.no/terminliste/pdf/", name: "TBK 50+ (bowling)", m: 3, d: 30, end: 35, place: "Centrum, Trondheim", region: "trondelag", sport: "Bowling" },
+  { id: "elverum-open-bowling-2027", added: "2026-11-23", year: 2027, info: "https://data.bowling.no/terminliste/pdf/", name: "Elverum Open (bowling)", m: 2, d: 13, end: 21, place: "Elverum", region: "innlandet", sport: "Bowling" },
+  { id: "grenland-open-bowling-2027", added: "2026-11-23", year: 2027, info: "https://data.bowling.no/terminliste/pdf/", name: "Grenland Open (bowling)", m: 2, d: 17, end: 21, place: "Porsgrunn", region: "telemark", sport: "Bowling" },
+  { id: "jarlsberg-open-bowling-2027", added: "2026-11-23", year: 2027, info: "https://data.bowling.no/terminliste/pdf/", name: "Jarlsberg Open (bowling)", m: 3, d: 17, end: 21, place: "Vallø, Tønsberg", region: "telemark", sport: "Bowling" },
+  { id: "larvik-open-bowling-2027", added: "2026-11-23", year: 2027, info: "https://data.bowling.no/terminliste/pdf/", name: "Larvik Open (bowling)", m: 4, d: 23, end: 25, place: "Larvik", region: "telemark", sport: "Bowling" },
 ];
 
 // Planlagt, men dato ikke fastsatt. Vises i fanen «Planlagt». Kun arrangementer som arrangøren selv har annonsert uten eksakt dato.
