@@ -821,6 +821,8 @@ const SEED = [
   { id: "frikarusellen-20271124", added: "2026-11-23", year: 2027, info: "https://running.life/running-calendar/norway", name: "Frikarusellen (5 km)", m: 11, d: 24, place: "Indre Arna", region: "vestland", sport: "Løping" },
   { id: "vinterkarusellenbergen-20271129", added: "2026-11-23", year: 2027, info: "https://running.life/running-calendar/norway", name: "Vinterkarusellen Bergen (5 km, 10 km)", m: 11, d: 29, place: "Bergen", region: "vestland", sport: "Løping" },
   { id: "nyttarslopetegersund-20271231", added: "2026-11-23", year: 2027, info: "https://running.life/running-calendar/norway", name: "Nyttårsløpet Egersund", m: 12, d: 31, place: "Egersund", region: "rogaland", sport: "Løping" },
+{ id: "blodslitet-nm-ultralang-2027", added: "2026-11-23", year: 2027, info: "https://running.life/trail-running-calendar/norway/ostfold", name: "Blodslitet (NM ultralang)", m: 10, d: 16, place: "Fredrikstad", region: "ostlandet", sport: "Orientering" },
+{ id: "kongsvingerrittet-2027", added: "2026-11-23", year: 2027, info: "https://trainerday.com/events/no/kongsvingerrittet", name: "Kongsvingerrittet (98 km landevei)", m: 5, d: 6, place: "Kongsvinger", region: "innlandet", sport: "Sykling", contact: { org: "Innlandet Bedriftsidrettskrets" } },
 ];
 
 // Planlagt, men dato ikke fastsatt. Vises i fanen «Planlagt». Kun arrangementer som arrangøren selv har annonsert uten eksakt dato.
