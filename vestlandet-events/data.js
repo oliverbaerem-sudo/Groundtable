@@ -834,12 +834,13 @@ const SEED = [
   { id: "grenland-open-bowling-2027", added: "2026-11-23", year: 2027, info: "https://data.bowling.no/terminliste/pdf/", name: "Grenland Open (bowling)", m: 2, d: 17, end: 21, place: "Porsgrunn", region: "telemark", sport: "Bowling" },
   { id: "jarlsberg-open-bowling-2027", added: "2026-11-23", year: 2027, info: "https://data.bowling.no/terminliste/pdf/", name: "Jarlsberg Open (bowling)", m: 3, d: 17, end: 21, place: "Vallø, Tønsberg", region: "telemark", sport: "Bowling" },
   { id: "larvik-open-bowling-2027", added: "2026-11-23", year: 2027, info: "https://data.bowling.no/terminliste/pdf/", name: "Larvik Open (bowling)", m: 4, d: 23, end: 25, place: "Larvik", region: "telemark", sport: "Bowling" },
+  // --- Innsamling 2026-11-24 ---
+  { id: "letape-trondheim-2027-dato", added: "2026-11-24", year: 2027, url: "https://www.finishers.com/no/arrangement/l-etape-trondheim", name: "L'Étape Trondheim (130 km, 75 km)", m: 6, d: 12, place: "Trondheim", region: "trondelag", sport: "Sykling", big: true },
 ];
 
 // Planlagt, men dato ikke fastsatt. Vises i fanen «Planlagt». Kun arrangementer som arrangøren selv har annonsert uten eksakt dato.
 // Format: { id, added: "YYYY-MM-DD", name, place, region, sport, when: "Sommer 2027" (ordrett fra kilden, valgfri), note, url/info, student, board, big, contact }
 const PLANNED = [
   { id: "tour-of-norway-2027", added: "2026-11-17", name: "Tour of Norway", place: "Rogaland m.fl.", region: "rogaland", sport: "Sykling", when: "2027, ikke bekreftet", note: "Arrangøren jobber for comeback, men finansieringen er ikke avklart.", info: "https://veloracycling.com/news/tour-of-norway-funding-2027", big: true },
-  { id: "letape-trondheim-2027", added: "2026-11-17", name: "L'Étape Trondheim", place: "Trondheim", region: "trondelag", sport: "Sykling", when: "Midten av juni 2027", note: "130 km. Eksakt dato ikke bekreftet.", info: "https://www.finishers.com/no/arrangement/l-etape-trondheim" },
   { id: "nm-innendors-2027", added: "2026-11-17", name: "NM innendørs friidrett", place: "Bergen", region: "vestland", sport: "Friidrett", when: "Slutten av februar 2027, ubekreftet dato", info: "https://www.racedays.run/event/nm-innendors-2027" },
 ];
