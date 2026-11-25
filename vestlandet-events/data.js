@@ -836,6 +836,19 @@ const SEED = [
   { id: "larvik-open-bowling-2027", added: "2026-11-23", year: 2027, info: "https://data.bowling.no/terminliste/pdf/", name: "Larvik Open (bowling)", m: 4, d: 23, end: 25, place: "Larvik", region: "telemark", sport: "Bowling" },
   // --- Innsamling 2026-11-24 ---
   { id: "letape-trondheim-2027-dato", added: "2026-11-24", year: 2027, url: "https://www.finishers.com/no/arrangement/l-etape-trondheim", name: "L'Étape Trondheim (130 km, 75 km)", m: 6, d: 12, place: "Trondheim", region: "trondelag", sport: "Sykling", big: true },
+  // --- Innsamling 2026-11-25 ---
+  { id: "nm-enkeltdistanser-2027", added: "2026-11-25", year: 2027, url: "https://www.skoyteforbundet.no/hurtiglop/nyheter/2025/norges-mesterskap-enkeltdistanser-i-stavanger-program/", name: "NM enkeltdistanser (skøyter)", m: 10, d: 30, end: 32, place: "Vår Energi Sørmarka Arena, Stavanger", region: "rogaland", sport: "Skøyter" },
+  { id: "nm-15m-rifle-2027", added: "2026-11-25", year: 2027, url: "https://www.skyting.no/kalender/kalender-for-norske-mesterskap/", name: "NM 15 m rifle", m: 3, d: 31, place: "Nordstrand, Oslo", region: "ostlandet", sport: "Skyting" },
+  { id: "nm-10m-rifle-pistol-2027", added: "2026-11-25", year: 2027, url: "https://www.skyting.no/kalender/kalender-for-norske-mesterskap/", name: "NM 10 m rifle og pistol", m: 4, d: 8, place: "Haugesund", region: "rogaland", sport: "Skyting" },
+  { id: "nm-feltpistol-2027", added: "2026-11-25", year: 2027, url: "https://www.skyting.no/kalender/kalender-for-norske-mesterskap/", name: "NM feltpistol", m: 7, d: 26, place: "Rena", region: "innlandet", sport: "Skyting" },
+  { id: "nm-fitasc-compak-2027", added: "2026-11-25", year: 2027, url: "https://www.skyting.no/kalender/kalender-for-norske-mesterskap/", name: "NM FITASC Compak Sporting", m: 7, d: 31, place: "Brunlanes", region: "telemark", sport: "Skyting" },
+  { id: "nm-ol-trap-2027", added: "2026-11-25", year: 2027, url: "https://www.skyting.no/kalender/kalender-for-norske-mesterskap/", name: "NM OL-Trap", m: 8, d: 7, place: "Oslo", region: "ostlandet", sport: "Skyting" },
+  { id: "nm-skeet-2027", added: "2026-11-25", year: 2027, url: "https://www.skyting.no/kalender/kalender-for-norske-mesterskap/", name: "NM Skeet", m: 8, d: 14, place: "Oslo", region: "ostlandet", sport: "Skyting" },
+  { id: "nm-volleyball-cupfinale-2027", added: "2026-11-25", year: 2027, url: "https://volleyball.no/nm/", name: "NM senior cupfinale volleyball", m: 1, d: 16, place: "Oslo", region: "ostlandet", sport: "Volleyball" },
+  { id: "nm-volleyball-veteran-2027", added: "2026-11-25", year: 2027, url: "https://volleyball.no/nm/", name: "NM veteran volleyball", m: 5, d: 28, end: 29, place: "Hønefoss Arena, Hønefoss", region: "ostlandet", sport: "Volleyball" },
+  { id: "nm-benkpress-2027", added: "2026-11-25", year: 2027, url: "https://styrkeloft.no/dommersoknad-norske-mesterskap/", name: "NM benkpress (med og uten utstyr)", m: 2, d: 19, end: 21, place: "Bergen", region: "vestland", sport: "Styrkeløft" },
+  { id: "nm-utstyrsfritt-styrkelop-2027", added: "2026-11-25", year: 2027, url: "https://styrkeloft.no/dommersoknad-norske-mesterskap/", name: "NM utstyrsfritt styrkeløft", m: 8, d: 13, end: 15, place: "Stavanger", region: "rogaland", sport: "Styrkeløft" },
+  { id: "nm-styrkelop-2027", added: "2026-11-25", year: 2027, url: "https://styrkeloft.no/dommersoknad-norske-mesterskap/", name: "NM styrkeløft (åpen, junior, veteran)", m: 6, d: 18, end: 20, place: "Trondheim", region: "trondelag", sport: "Styrkeløft" },
 ];
 
 // Planlagt, men dato ikke fastsatt. Vises i fanen «Planlagt». Kun arrangementer som arrangøren selv har annonsert uten eksakt dato.
@@ -843,4 +856,5 @@ const SEED = [
 const PLANNED = [
   { id: "tour-of-norway-2027", added: "2026-11-17", name: "Tour of Norway", place: "Rogaland m.fl.", region: "rogaland", sport: "Sykling", when: "2027, ikke bekreftet", note: "Arrangøren jobber for comeback, men finansieringen er ikke avklart.", info: "https://veloracycling.com/news/tour-of-norway-funding-2027", big: true },
   { id: "nm-innendors-2027", added: "2026-11-17", name: "NM innendørs friidrett", place: "Bergen", region: "vestland", sport: "Friidrett", when: "Slutten av februar 2027, ubekreftet dato", info: "https://www.racedays.run/event/nm-innendors-2027" },
+  { id: "dragbike-em-gardermoen-2027", added: "2026-11-25", name: "Dragbike-EM (europamesterskapsrunde)", place: "Gardermoen", region: "ostlandet", sport: "Racing og roadracing", when: "2027, dato ikke fastsatt", note: "Norges Motorsportforbund fikk statlig tilskudd til EM-runde i dragbike på Gardermoen i 2027.", info: "https://www.regjeringen.no/no/aktuelt/tilskudd-til-internasjonale-idrettsarrangementer-i-norge/id3166086/" },
 ];
