@@ -854,6 +854,16 @@ const SEED = [
   { id: "romerikes-raeste-2027", added: "2026-11-26", year: 2027, info: "https://running.life/hinderlopskalender/norge", name: "Romerikes råeste (hinderløp)", m: 8, d: 21, place: "Teigebyen", region: "ostlandet", sport: "Hinderløp" },
   { id: "forest-run-elverum-2027", added: "2026-11-26", year: 2027, info: "https://running.life/hinderlopskalender/norge", name: "Forest Run Elverum (hinderløp)", m: 8, d: 28, place: "Elverum", region: "innlandet", sport: "Hinderløp" },
   { id: "asanrundt-2027", added: "2026-11-26", year: 2027, info: "https://running.life/trail-running-calendar/norway", name: "ÅsanRundt", m: 2, d: 28, place: "Mosjøen", region: "nord", sport: "Løping" },
+  // --- Innsamling 2026-11-27 ---
+  { id: "nm-rally1-2027", added: "2026-11-27", year: 2027, official: "Norsk bilsport", url: "https://bilsport.no/terminliste-rallynm-2027/", name: "Sigdalsrally (NM rally)", m: 1, d: 16, place: "Modum og Sigdal", region: "ostlandet", sport: "Motorsport" },
+  { id: "nm-rally2-2027", added: "2026-11-27", year: 2027, official: "Norsk bilsport", url: "https://bilsport.no/terminliste-rallynm-2027/", name: "Rally Hadeland (NM rally)", m: 2, d: 5, end: 6, place: "Hadeland", region: "ostlandet", sport: "Motorsport" },
+  { id: "nm-rally3-2027", added: "2026-11-27", year: 2027, official: "Norsk bilsport", url: "https://bilsport.no/terminliste-rallynm-2027/", name: "Aurskog Høland Rally (NM rally)", m: 6, d: 5, place: "Aurskog-Høland", region: "ostlandet", sport: "Motorsport" },
+  { id: "nm-rally4-2027", added: "2026-11-27", year: 2027, official: "Norsk bilsport", url: "https://bilsport.no/terminliste-rallynm-2027/", name: "Sommer Rally Grimstad (NM rally)", m: 8, d: 21, place: "Grimstad", region: "agder", sport: "Motorsport" },
+  { id: "nm-rally5-2027", added: "2026-11-27", year: 2027, official: "Norsk bilsport", url: "https://bilsport.no/terminliste-rallynm-2027/", name: "Rally Larvik (NM rally)", m: 9, d: 4, place: "Larvik", region: "telemark", sport: "Motorsport" },
+  { id: "nm-rally6-2027", added: "2026-11-27", year: 2027, official: "Norsk bilsport", url: "https://bilsport.no/terminliste-rallynm-2027/", name: "Rally Hedemarken (NM rally)", m: 9, d: 17, end: 18, place: "Hamar", region: "innlandet", sport: "Motorsport" },
+  { id: "nm-ski-langrenn1-2027", added: "2026-11-27", year: 2027, official: "Norges Skiforbund", url: "https://norskekalendere.no/vintersport/langrenn/", name: "NM på ski langrenn, del 1", m: 1, d: 21, end: 24, place: "Konnerud skistadion, Drammen", region: "ostlandet", sport: "Langrenn" },
+  { id: "nm-u23-langrenn-2027", added: "2026-11-27", year: 2027, official: "Norges Skiforbund", url: "https://norskekalendere.no/vintersport/langrenn/", name: "U23-NM langrenn", m: 2, d: 19, end: 21, place: "Voss", region: "vestland", sport: "Langrenn" },
+  { id: "nm-ski-langrenn2-2027", added: "2026-11-27", year: 2027, official: "Norges Skiforbund", url: "https://norskekalendere.no/vintersport/langrenn/", name: "NM på ski langrenn, del 2", m: 4, d: 1, end: 4, place: "Hovden", region: "agder", sport: "Langrenn" },
 ];
 
 // Planlagt, men dato ikke fastsatt. Vises i fanen «Planlagt». Kun arrangementer som arrangøren selv har annonsert uten eksakt dato.
