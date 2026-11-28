@@ -171,7 +171,7 @@ const SEED = [
   { id: "arctic-alta-skimaraton", added: "2026-11-17", year: 2027, info: "https://trainerday.com/events/no/arctic-alta-skimaraton-2027", name: "Arctic Alta Skimaraton", m: 2, d: 20, place: "Alta", region: "nord", sport: "Langrenn" },
   // --- Studentarrangementer (student: true) ---
   { id: "studentlekene-trondheim-2027", participants: { expected: 2251, basis: "deltakere 2019 (rekord)", asOf: "2026-11-18", src: "https://www.sltrondheim.no/om-oss/om-studentlekene-trondheim" }, added: "2026-11-17", student: true, year: 2027, url: "https://www.sltrondheim.no/", info: "https://www.studentidrett.no/arrangementer/studentlekene-trondheim-2027", name: "Studentlekene Trondheim (Student-NM og Studentcup)", m: 2, d: 24, end: 27, place: "Trondheim", region: "trondelag", sport: "Annet", big: true },
-  { id: "isfit-2027", added: "2026-11-17", student: true, year: 2027, url: "https://www.isfit.org/", name: "ISFiT, internasjonal studentfestival", m: 2, d: 11, end: 21, place: "Trondheim", region: "trondelag", sport: "Annet", big: true },
+  { id: "isfit-2027", participants: { expected: 400, basis: "plasser arrangøren kunne tilby deltakere", asOf: "2026-11-28", src: "https://www.isfit.org/" }, added: "2026-11-17", student: true, year: 2027, url: "https://www.isfit.org/", name: "ISFiT, internasjonal studentfestival", m: 2, d: 11, end: 21, place: "Trondheim", region: "trondelag", sport: "Annet", big: true },
   { id: "skiskyting-vc-oslo-2027", added: "2026-11-17", year: 2027, info: "https://www.visitoslo.com/whats-on/biathlon-world-cup", name: "Skiskyting verdenscup, Holmenkollen", m: 3, d: 16, end: 21, place: "Oslo", region: "ostlandet", sport: "Skiskyting", big: true },
   { id: "summit2-senja", participants: { expected: 250, basis: "maks 250 plasser", asOf: "2026-11-18", src: "https://www.skiclassics.com/livecenter/summit-2-senja/" }, added: "2026-11-17", year: 2027, url: "https://www.skiclassics.com/livecenter/summit-2-senja/", name: "Grand Finale Summit 2 Senja (60 km)", m: 4, d: 4, place: "Senja", region: "nord", sport: "Langrenn" },
   // --- Nattlig søk 2026-11-17 (kveld) ---
@@ -864,6 +864,8 @@ const SEED = [
   { id: "nm-ski-langrenn1-2027", added: "2026-11-27", year: 2027, official: "Norges Skiforbund", url: "https://norskekalendere.no/vintersport/langrenn/", name: "NM på ski langrenn, del 1", m: 1, d: 21, end: 24, place: "Konnerud skistadion, Drammen", region: "ostlandet", sport: "Langrenn" },
   { id: "nm-u23-langrenn-2027", added: "2026-11-27", year: 2027, official: "Norges Skiforbund", url: "https://norskekalendere.no/vintersport/langrenn/", name: "U23-NM langrenn", m: 2, d: 19, end: 21, place: "Voss", region: "vestland", sport: "Langrenn" },
   { id: "nm-ski-langrenn2-2027", added: "2026-11-27", year: 2027, official: "Norges Skiforbund", url: "https://norskekalendere.no/vintersport/langrenn/", name: "NM på ski langrenn, del 2", m: 4, d: 1, end: 4, place: "Hovden", region: "agder", sport: "Langrenn" },
+  // --- Innsamling 2026-11-28 ---
+  { id: "krsultra-20270403", added: "2026-11-28", year: 2027, url: "https://racetracker.one/2027/krsultra", info: "https://gotrail.run/en/race/krsultra", name: "KRSUltra (10 km, 21 km, 60 km)", m: 4, d: 3, place: "Kristiansand", region: "agder", sport: "Trailløp" },
 ];
 
 // Planlagt, men dato ikke fastsatt. Vises i fanen «Planlagt». Kun arrangementer som arrangøren selv har annonsert uten eksakt dato.
